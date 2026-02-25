@@ -1,0 +1,11 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "city-hero",
+      "description": "Aerial view of a modern city with clear skies",
+      "imageUrl": "https://picsum.photos/seed/city1/1200/400",
+      "imageHint": "city aerial"
+    }
+  ]
+}
