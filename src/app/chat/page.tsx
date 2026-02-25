@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
@@ -11,16 +12,15 @@ import { Button } from "@/components/ui/button";
 import { 
   ArrowLeft, 
   Activity, 
-  Terminal, 
-  ShieldCheck, 
-  PanelLeftClose, 
-  PanelLeft,
   LayoutGrid,
   Wind,
   Cloud,
   ChevronRight,
   Sparkles,
-  Zap
+  Zap,
+  PanelLeftClose,
+  PanelLeft,
+  ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -49,7 +49,7 @@ function ChatContent() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#fcfcfd]">
-      {/* Slim Global Header */}
+      {/* Global Header - Minimalist Navigation */}
       <header className="flex items-center justify-between px-4 h-12 border-b border-border/40 bg-white z-50 shrink-0">
         <div className="flex items-center gap-4">
           <Link href="/">
@@ -65,7 +65,7 @@ function ChatContent() {
         </div>
         
         {cityData && (
-          <div className="flex items-center gap-2 px-2 py-1 bg-primary/5 rounded-lg border border-primary/10">
+          <div className="flex items-center gap-2 px-3 py-1 bg-primary/5 rounded-full border border-primary/10">
             <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
             <span className="text-[9px] font-black uppercase tracking-widest text-primary/70">{cityData.city} Grounded</span>
           </div>
@@ -87,7 +87,7 @@ function ChatContent() {
               isSidebarOpen ? "w-64 translate-x-0" : "w-0 -translate-x-full lg:w-0"
             )}
           >
-            {/* Sidebar Toggle & Header */}
+            {/* Sidebar Toggle - Integrated below header line */}
             <div className="flex items-center justify-between p-3 border-b border-border/40 bg-white/50">
               <span className="text-[8px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Research Matrix</span>
               <Button 
@@ -182,18 +182,17 @@ function ChatContent() {
           </aside>
 
           {/* Chat Interface Container */}
-          <main className="flex-1 flex flex-col bg-white overflow-hidden">
+          <main className="flex-1 flex flex-col bg-white overflow-hidden relative">
             {!isSidebarOpen && (
-              <div className="p-2 border-b border-border/40 flex items-center bg-white/80 backdrop-blur-sm z-30">
+              <div className="absolute left-2 top-2 z-50">
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
                   size="icon" 
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  className="h-8 w-8 bg-white/80 backdrop-blur-sm shadow-sm border-border/40 text-muted-foreground hover:text-foreground hover:bg-white"
                   onClick={() => setIsSidebarOpen(true)}
                 >
                   <PanelLeft className="w-4 h-4" />
                 </Button>
-                <span className="ml-3 text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Expand Research Matrix</span>
               </div>
             )}
             <div className="flex-1 flex flex-col min-h-0">
