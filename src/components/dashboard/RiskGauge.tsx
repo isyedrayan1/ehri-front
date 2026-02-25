@@ -60,8 +60,8 @@ export function RiskGauge({ score, status }: RiskGaugeProps) {
             </ResponsiveContainer>
           </div>
           
-          <div className="absolute top-[52%] flex flex-col items-center">
-            <span className="text-8xl font-headline font-bold tracking-tighter" style={{ color }}>
+          <div className="absolute top-[60%] flex flex-col items-center">
+            <span className="text-6xl font-headline font-bold tracking-tighter" style={{ color }}>
               {score.toFixed(1)}
             </span>
             <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-border/60 mt-4 bg-background/40 backdrop-blur-sm shadow-sm transition-all group-hover:scale-105">
