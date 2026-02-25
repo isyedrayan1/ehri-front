@@ -5,16 +5,18 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/dashboard/Header";
 import { CitySelector } from "@/components/dashboard/CitySelector";
 import { RiskGauge } from "@/components/dashboard/RiskGauge";
-import { RiskBreakdown } from "@/components/dashboard/RiskBreakdown";
-import { FeatureBarChart } from "@/components/dashboard/FeatureBarChart";
+import { AirQualityCard } from "@/components/dashboard/AirQualityCard";
+import { WeatherCard } from "@/components/dashboard/WeatherCard";
+import { PopulationDensityCard } from "@/components/dashboard/PopulationDensityCard";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { AIExplanationPanel } from "@/components/dashboard/AIExplanationPanel";
-import { QASection } from "@/components/dashboard/QASection";
+import { PrecautionsCard } from "@/components/dashboard/PrecautionsCard";
+import { FactorBreakdown } from "@/components/dashboard/FactorBreakdown";
 import { LoadingOverlay } from "@/components/dashboard/LoadingOverlay";
 import { fetchCityRisk } from "@/services/api";
 import { CityRiskData, defaultCity } from "@/data/mock-data";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ArrowUpRight } from "lucide-react";
 
 export default function Home() {
   const [currentCityName, setCurrentCityName] = useState(defaultCity);
@@ -39,76 +41,93 @@ export default function Home() {
   }, [currentCityName]);
 
   return (
-    <main className="min-h-screen p-4 md:p-8 lg:p-12 bg-[#F6F7F8]">
-      <div className="max-w-7xl mx-auto relative">
+    <main className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <Header />
 
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <CitySelector 
             currentCity={currentCityName} 
             onCityChange={setCurrentCityName} 
             disabled={loading}
           />
+          {cityData && (
+            <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground bg-muted/30 px-3 py-1.5 rounded-full border border-border/40">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              Real-time monitoring active
+            </div>
+          )}
         </div>
 
         {error && (
-          <Alert variant="destructive" className="mb-8">
+          <Alert variant="destructive" className="mb-8 rounded-2xl border-none shadow-sm">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
+            <AlertTitle>System Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
-        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-300 ${loading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
-          {/* Column 1: Core Metrics */}
-          <div className="flex flex-col gap-6">
-            <div className="flex-1">
-              {cityData && <RiskGauge score={cityData.ehri} />}
-            </div>
-            <div className="flex-1">
-              {cityData && (
-                <RiskBreakdown 
+        {loading && <LoadingOverlay />}
+
+        <div className={`bento-grid transition-all duration-700 ease-out ${loading ? 'opacity-0 scale-[0.98]' : 'opacity-100 scale-100'}`}>
+          {cityData && (
+            <>
+              {/* Primary Card (2x2) */}
+              <div className="md:col-span-2 md:row-span-2">
+                <RiskGauge score={cityData.ehri} status={cityData.status} />
+              </div>
+
+              {/* Air Quality Card */}
+              <div className="md:col-span-1">
+                <AirQualityCard data={cityData.airQuality} />
+              </div>
+
+              {/* Weather Card */}
+              <div className="md:col-span-1">
+                <WeatherCard weather={cityData.weather} />
+              </div>
+
+              {/* Health Summary */}
+              <div className="md:col-span-2">
+                <AIExplanationPanel cityData={cityData} />
+              </div>
+
+              {/* Trend Analysis */}
+              <div className="md:col-span-2">
+                <TrendChart trend={cityData.trend} />
+              </div>
+
+              {/* Population Density */}
+              <div className="md:col-span-1">
+                <PopulationDensityCard density={cityData.populationDensity} />
+              </div>
+
+              {/* Precautions */}
+              <div className="md:col-span-1">
+                <PrecautionsCard precautions={cityData.precautions} />
+              </div>
+
+              {/* Environmental Breakdown */}
+              <div className="md:col-span-2">
+                <FactorBreakdown 
                   pollution={cityData.pollutionStress} 
                   heat={cityData.heatStress} 
                   humidity={cityData.humidityStress} 
                 />
-              )}
-            </div>
-          </div>
-
-          {/* Column 2: Analysis */}
-          <div className="flex flex-col gap-6">
-            <div className="flex-1">
-              {cityData && <FeatureBarChart data={cityData.topFactors} />}
-            </div>
-            <div className="flex-1">
-              {cityData && <AIExplanationPanel cityData={cityData} />}
-            </div>
-          </div>
-
-          {/* Column 3: Trends & Interaction */}
-          <div className="flex flex-col gap-6">
-             <div className="flex-1">
-              {cityData && <TrendChart trend={cityData.trend} />}
-            </div>
-            <div className="flex-1">
-              {cityData && <QASection cityData={cityData} />}
-            </div>
-          </div>
+              </div>
+            </>
+          )}
         </div>
 
-        {loading && <LoadingOverlay />}
-
-        {!cityData && !loading && !error && (
-          <div className="text-center p-12 bg-card rounded-2xl shadow-sm border border-dashed text-muted-foreground">
-            No data available for the selected city.
+        <footer className="mt-16 pt-8 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+          <span>&copy; {new Date().getFullYear()} EHRI Research Lab • Institute of Atmospheric Physics</span>
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-foreground transition-colors">Methodology</a>
+            <a href="#" className="hover:text-foreground transition-colors">API Docs</a>
+            <a href="#" className="hover:text-foreground transition-colors">System Status</a>
           </div>
-        )}
+        </footer>
       </div>
-      
-      <footer className="mt-12 pt-8 border-t text-center text-xs text-muted-foreground font-medium">
-        &#169; {new Date().getFullYear()} Environmental Health Risk Intelligence (EHRI). All data is simulated for demonstration purposes.
-      </footer>
     </main>
   );
 }
