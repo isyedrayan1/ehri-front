@@ -10,7 +10,9 @@ import {
   AlertTriangle, 
   Microscope,
   Info,
-  ChevronRight
+  ChevronRight,
+  Database,
+  Timer
 } from "lucide-react";
 import { CityRiskData } from "@/data/mock-data";
 import { cn } from "@/lib/utils";
@@ -55,7 +57,7 @@ export function HealthImpactPanel({ healthImpact }: HealthImpactPanelProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-16 flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-16 mb-12">
                 {/* Respiratory Section */}
                 <div className="flex flex-col">
                   <div className="flex items-center justify-between mb-8">
@@ -135,6 +137,25 @@ export function HealthImpactPanel({ healthImpact }: HealthImpactPanelProps) {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* New Bottom Section: Clinical Data Stream */}
+              <div className="mt-auto pt-10 border-t border-border/40 grid grid-cols-1 md:grid-cols-3 gap-6">
+                 {[
+                   { label: "Confidence Interval", value: "94.2%", icon: Database },
+                   { label: "Clinical Refresh", value: "Real-time", icon: Timer },
+                   { label: "Sensor Fidelity", value: "Grade-A", icon: Microscope },
+                 ].map((item, idx) => (
+                   <div key={idx} className="flex items-center gap-4 p-4 rounded-2xl bg-primary/[0.02] border border-primary/5 group hover:bg-primary/[0.04] transition-all">
+                      <div className="p-2 bg-white rounded-xl shadow-sm border border-border/40 group-hover:scale-110 transition-transform">
+                        <item.icon className="w-4 h-4 text-primary/40" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">{item.label}</span>
+                        <span className="text-xs font-bold text-foreground">{item.value}</span>
+                      </div>
+                   </div>
+                 ))}
               </div>
             </CardContent>
           </Card>
