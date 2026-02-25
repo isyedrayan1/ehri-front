@@ -9,7 +9,7 @@ import { fetchCityRisk } from "@/services/api";
 import { CityRiskData, defaultCity } from "@/data/mock-data";
 import { LoadingOverlay } from "@/components/dashboard/LoadingOverlay";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, BrainCircuit, Activity } from "lucide-react";
+import { ArrowLeft, MapPin, Activity, Terminal, ShieldCheck, Database } from "lucide-react";
 
 function ChatContent() {
   const searchParams = useSearchParams();
@@ -34,69 +34,106 @@ function ChatContent() {
   }, [cityQuery]);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 md:px-6 pb-12">
-      <Header />
-      
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <Link href="/">
-          <Button variant="ghost" size="sm" className="gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Dashboard
-          </Button>
-        </Link>
+    <div className="flex flex-col h-screen overflow-hidden">
+      {/* Top Navigation - Ultra Slim */}
+      <header className="flex items-center justify-between px-6 py-3 border-b border-border/40 bg-white/80 backdrop-blur-md z-50">
+        <div className="flex items-center gap-6">
+          <Link href="/">
+            <Button variant="ghost" size="sm" className="h-8 gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Dashboard
+            </Button>
+          </Link>
+          <div className="h-4 w-px bg-border/40 hidden sm:block" />
+          <div className="flex items-center gap-2">
+            <Activity className="w-4 h-4 text-primary" strokeWidth={2.5} />
+            <h1 className="text-xs font-black uppercase tracking-[0.2em]">EHRI Intelligence Agent</h1>
+          </div>
+        </div>
         
         {cityData && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-full border border-border/40 shadow-sm">
-            <MapPin className="w-3 h-3 text-primary/40" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-foreground">{cityData.city} Context Active</span>
+          <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-4 mr-4">
+              <div className="flex flex-col items-end">
+                <span className="text-[8px] font-black text-muted-foreground/40 uppercase tracking-widest">Selected Node</span>
+                <span className="text-[10px] font-bold text-foreground">{cityData.city}</span>
+              </div>
+              <div className="flex flex-col items-end">
+                <span className="text-[8px] font-black text-muted-foreground/40 uppercase tracking-widest">EHRI Score</span>
+                <span className="text-[10px] font-bold text-foreground">{cityData.ehri}</span>
+              </div>
+            </div>
+            <div className="px-3 py-1 bg-primary text-white rounded-full flex items-center gap-2 shadow-lg shadow-primary/10">
+              <MapPin className="w-3 h-3" />
+              <span className="text-[9px] font-black uppercase tracking-widest">{cityData.city}</span>
+            </div>
           </div>
         )}
-      </div>
+      </header>
 
       {loading && (
-        <div className="h-[60vh] flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center bg-background">
           <LoadingOverlay />
         </div>
       )}
 
       {cityData && (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-          {/* Sidebar Info - Compact */}
-          <div className="lg:col-span-1 space-y-4 hidden lg:block">
-            <div className="p-5 bg-card rounded-3xl border border-border/40 shadow-sm space-y-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Activity className="w-3.5 h-3.5 text-primary/60" />
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Live Metrics</h3>
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase">EHRI Score</span>
-                  <span className="text-xs font-bold font-headline">{cityData.ehri}</span>
+        <div className="flex-1 flex overflow-hidden">
+          {/* Scientific Context Sidebar */}
+          <aside className="w-80 hidden lg:flex flex-col border-r border-border/40 bg-muted/20 overflow-y-auto">
+            <div className="p-6 space-y-8">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Terminal className="w-3 h-3 text-primary/60" />
+                  <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Node Telemetry</h3>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase">AQI Status</span>
-                  <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-primary/5 text-primary uppercase border border-primary/10">
-                    {cityData.airQuality.status}
-                  </span>
+                
+                <div className="grid grid-cols-1 gap-3">
+                  {[
+                    { label: "AQI Level", value: cityData.airQuality.status, icon: ShieldCheck },
+                    { label: "Thermal Load", value: `${cityData.weather.temp}°C`, icon: Database },
+                    { label: "Humidity Index", value: `${cityData.weather.humidity}%`, icon: Activity },
+                  ].map((item, idx) => (
+                    <div key={idx} className="p-4 bg-white rounded-2xl border border-border/40 shadow-sm group hover:border-primary/20 transition-all">
+                      <div className="flex items-center gap-2 mb-1">
+                        <item.icon className="w-3 h-3 text-muted-foreground/40 group-hover:text-primary/60 transition-colors" />
+                        <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40">{item.label}</span>
+                      </div>
+                      <p className="text-xs font-bold font-headline">{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 px-1">Suggested Inquiries</h3>
+                <div className="space-y-2">
+                  {[
+                    "What are the specific health risks for seniors in this city today?",
+                    "Is it safe to go for a 10km run based on current PM2.5 levels?",
+                    "How does population density impact the current heat stress?",
+                  ].map((query, i) => (
+                    <button 
+                      key={i}
+                      className="w-full text-left p-4 rounded-2xl bg-white border border-border/40 text-[10px] font-bold text-muted-foreground leading-relaxed hover:bg-muted hover:border-border transition-all shadow-sm"
+                    >
+                      "{query}"
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
 
-            <div className="p-5 bg-card rounded-3xl border border-border/40 shadow-sm">
-              <h3 className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mb-3">Suggested Queries</h3>
-              <ul className="space-y-2 text-[10px] font-medium text-muted-foreground/80 leading-snug">
-                <li className="p-2 hover:bg-muted/50 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-border/40">
-                  "Is it safe for a 10km run today?"
-                </li>
-                <li className="p-2 hover:bg-muted/50 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-border/40">
-                  "Health risks for seniors?"
-                </li>
-              </ul>
+            <div className="mt-auto p-6 border-t border-border/40">
+              <div className="flex items-center gap-3 text-[8px] font-black text-muted-foreground/30 uppercase tracking-[0.3em]">
+                <ShieldCheck className="w-3 h-3" />
+                <span>End-to-End Encrypted Node</span>
+              </div>
             </div>
-          </div>
+          </aside>
 
-          {/* Chat Interface */}
-          <div className="lg:col-span-3">
+          {/* Chat Interface - Full Page Application Style */}
+          <div className="flex-1 flex flex-col bg-[#fcfcfd]">
             <QASection cityData={cityData} />
           </div>
         </div>
@@ -107,7 +144,7 @@ function ChatContent() {
 
 export default function ChatPage() {
   return (
-    <main className="min-h-screen bg-[#f8fafc]">
+    <main className="min-h-screen bg-background">
       <Suspense fallback={<LoadingOverlay />}>
         <ChatContent />
       </Suspense>
