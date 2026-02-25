@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { generateAiExplanation } from "@/ai/flows/ai-generated-explanation";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Loader2, Quote, BrainCircuit } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sparkles, Loader2, Quote, BrainCircuit, MessageSquarePlus, ArrowRight } from "lucide-react";
 import { CityRiskData } from "@/data/mock-data";
 
 interface AIExplanationPanelProps {
@@ -47,14 +49,14 @@ export function AIExplanationPanel({ cityData }: AIExplanationPanelProps) {
                 <BrainCircuit className="w-5 h-5 text-foreground/80" />
               </div>
               <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-muted-foreground/80">
-                Environmental Synthesis Analysis
+                Cognitive Synthesis Hub
               </span>
             </div>
             <Sparkles className="w-5 h-5 text-primary/20 animate-pulse" />
           </div>
 
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-8">
+            <div className="flex flex-col items-center justify-center py-24 gap-8">
               <div className="relative">
                  <Loader2 className="w-10 h-10 animate-spin text-primary/10" />
                  <div className="absolute inset-0 flex items-center justify-center">
@@ -62,24 +64,34 @@ export function AIExplanationPanel({ cityData }: AIExplanationPanelProps) {
                  </div>
               </div>
               <span className="text-[10px] font-bold text-muted-foreground/60 tracking-[0.4em] uppercase">
-                Processing Neural Indicators...
+                Synthesizing Neural Indicators...
               </span>
             </div>
           ) : (
-            <div className="relative">
-              <Quote className="absolute -top-10 -left-12 w-24 h-24 text-foreground/[0.03]" />
-              <div className="space-y-10">
+            <div className="relative space-y-16">
+              <div className="relative">
+                <Quote className="absolute -top-10 -left-12 w-24 h-24 text-foreground/[0.03]" />
                 <p className="text-2xl md:text-3xl lg:text-4xl leading-[1.3] text-foreground font-headline font-medium tracking-tight max-w-5xl">
                   {explanation}
                 </p>
-                <div className="flex flex-col md:flex-row md:items-center gap-6 pt-6 border-t border-border/40">
+              </div>
+
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-10 pt-10 border-t border-border/40">
+                <div className="flex flex-col gap-2">
                    <div className="flex items-center gap-3">
                       <div className="h-0.5 w-8 bg-primary/20" />
                       <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">EHRI-Agent V.2.14</span>
                    </div>
-                   <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-border" />
-                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Verified Research Data Synthesis</span>
+                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 ml-11">Verified Research Data Synthesis</span>
                 </div>
+
+                <Link href={`/chat?city=${cityData.city}`}>
+                  <Button size="lg" className="h-16 px-10 rounded-2xl bg-foreground text-background hover:bg-foreground/90 text-sm font-bold gap-4 group transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/10">
+                    <MessageSquarePlus className="w-5 h-5" />
+                    Deep Inquiry Mode
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                </Link>
               </div>
             </div>
           )}
