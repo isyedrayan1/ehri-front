@@ -5,14 +5,14 @@ import { interactiveQa } from "@/ai/flows/interactive-qa";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { 
-  Bot, 
   Loader2, 
   SendHorizontal, 
   User, 
   Sparkles,
   Info,
   BrainCircuit,
-  Database
+  Database,
+  Lock
 } from "lucide-react";
 import { CityRiskData } from "@/data/mock-data";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,7 @@ export function QASection({ cityData }: QASectionProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "ai",
-      content: `I am the EHRI Environmental Health Assistant, currently processing real-time telemetry from the ${cityData.city} node. I am ready to interpret clinical risks, health advisories, and environmental impacts based on our latest grounded data.`
+      content: `EHRI Intelligence Agent active. Currently monitoring the ${cityData.city} node with an EHRI of ${cityData.ehri}. I can interpret clinical risks, health advisories, and long-term environmental outcomes based on our grounded telemetry.`
     }
   ]);
   const [loading, setLoading] = useState(false);
@@ -61,7 +61,7 @@ export function QASection({ cityData }: QASectionProps) {
     } catch (error) {
       setMessages(prev => [
         ...prev, 
-        { role: "ai", content: "Signal sync error with the Intelligence Node. Please retry your inquiry." }
+        { role: "ai", content: "Signal sync error. The intelligence node is currently under heavy load." }
       ]);
     } finally {
       setLoading(false);
@@ -70,35 +70,37 @@ export function QASection({ cityData }: QASectionProps) {
 
   return (
     <div className="flex flex-col h-full relative">
-      {/* Message Feed - Full Screen Scrollable Area */}
+      {/* Neural Message Feed - Balanced for High-Density Reading */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-6 py-10 space-y-8 scroll-smooth"
+        className="flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-6 scroll-smooth"
       >
-        <div className="max-w-3xl mx-auto w-full space-y-8">
+        <div className="max-w-3xl mx-auto w-full space-y-6">
           {messages.map((msg, idx) => (
             <div 
               key={idx} 
               className={cn(
-                "flex w-full animate-in fade-in slide-in-from-bottom-2 duration-500",
+                "flex w-full animate-in fade-in slide-in-from-bottom-1 duration-500",
                 msg.role === "user" ? "justify-end" : "justify-start"
               )}
             >
               <div className={cn(
-                "max-w-[85%] sm:max-w-[75%] flex gap-5",
+                "max-w-[90%] sm:max-w-[80%] flex gap-3",
                 msg.role === "user" ? "flex-row-reverse" : "flex-row"
               )}>
                 <div className={cn(
-                  "w-9 h-9 rounded-2xl flex items-center justify-center shrink-0 mt-1 shadow-sm",
-                  msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-white border border-border/40 text-muted-foreground"
+                  "w-7 h-7 rounded-xl flex items-center justify-center shrink-0 mt-1 shadow-sm border",
+                  msg.role === "user" 
+                    ? "bg-primary text-primary-foreground border-primary" 
+                    : "bg-white border-border/40 text-primary/60"
                 )}>
-                  {msg.role === "user" ? <User className="w-5 h-5" /> : <BrainCircuit className="w-5 h-5" />}
+                  {msg.role === "user" ? <User className="w-4 h-4" /> : <BrainCircuit className="w-4 h-4" />}
                 </div>
                 <div className={cn(
-                  "p-5 rounded-[2rem] text-sm leading-relaxed",
+                  "p-4 rounded-2xl text-[13px] leading-relaxed",
                   msg.role === "user" 
                     ? "bg-primary text-primary-foreground font-medium rounded-tr-sm" 
-                    : "bg-white border border-border/40 text-foreground shadow-sm rounded-tl-sm"
+                    : "bg-[#f8fafc] border border-border/30 text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-tl-sm"
                 )}>
                   {msg.content}
                 </div>
@@ -108,12 +110,12 @@ export function QASection({ cityData }: QASectionProps) {
           
           {loading && (
             <div className="flex justify-start animate-in fade-in duration-300">
-              <div className="flex gap-5 max-w-[75%]">
-                <div className="w-9 h-9 rounded-2xl bg-white border border-border/40 flex items-center justify-center shrink-0 shadow-sm">
-                  <Loader2 className="w-5 h-5 animate-spin text-primary/40" />
+              <div className="flex gap-3 max-w-[80%]">
+                <div className="w-7 h-7 rounded-xl bg-white border border-border/40 flex items-center justify-center shrink-0 shadow-sm">
+                  <Loader2 className="w-4 h-4 animate-spin text-primary/40" />
                 </div>
-                <div className="bg-white border border-border/40 p-5 rounded-[2rem] rounded-tl-sm shadow-sm flex items-center gap-3">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 animate-pulse">Synchronizing Data Streams...</span>
+                <div className="bg-[#f8fafc] border border-border/30 p-4 rounded-2xl rounded-tl-sm shadow-sm flex items-center gap-3">
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 animate-pulse">Syncing Telemetry...</span>
                 </div>
               </div>
             </div>
@@ -121,40 +123,40 @@ export function QASection({ cityData }: QASectionProps) {
         </div>
       </div>
 
-      {/* Input Area - Floating Bottom Console */}
-      <div className="p-6 md:p-10 bg-gradient-to-t from-background via-background to-transparent">
-        <div className="max-w-3xl mx-auto w-full space-y-4">
+      {/* Floating Inquiry Console - Compact UI */}
+      <div className="px-4 md:px-8 pb-6 bg-gradient-to-t from-white via-white to-transparent pt-4">
+        <div className="max-w-3xl mx-auto w-full space-y-3">
           <form onSubmit={handleSubmit} className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary/10 to-transparent rounded-3xl blur opacity-0 group-focus-within:opacity-100 transition duration-1000"></div>
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/10 to-transparent rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
             <Input
-              placeholder={`Send a message to the ${cityData.city} Intelligence Agent...`}
+              placeholder={`Inquire about ${cityData.city} risk profile...`}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              className="h-16 pl-6 pr-16 bg-white border-border/60 shadow-xl rounded-[2rem] focus:ring-1 focus:ring-primary/20 placeholder:text-muted-foreground/30 font-medium text-base transition-all relative z-10"
+              className="h-12 pl-5 pr-14 bg-white border-border/60 shadow-lg rounded-2xl focus:ring-1 focus:ring-primary/10 placeholder:text-muted-foreground/40 font-medium text-xs transition-all relative z-10"
               disabled={loading}
             />
             <Button 
               type="submit" 
               disabled={loading || !question.trim()} 
               size="icon" 
-              className="absolute right-3 top-3 h-10 w-10 bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl transition-all shadow-lg active:scale-95 disabled:opacity-30 z-20"
+              className="absolute right-1.5 top-1.5 h-9 w-9 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-20 z-20"
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <SendHorizontal className="w-5 h-5" />}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <SendHorizontal className="w-4 h-4" />}
             </Button>
           </form>
           
-          <div className="flex items-center justify-center gap-6 text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground/30">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-3 h-3" />
-              <span>Grounded Intelligence</span>
+          <div className="flex items-center justify-center gap-6 text-[7px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 px-2">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-2.5 h-2.5" />
+              <span>Neural Synthesis</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Database className="w-3 h-3" />
-              <span>Real-time Telemetry Verified</span>
+            <div className="flex items-center gap-1.5">
+              <Database className="w-2.5 h-2.5" />
+              <span>Telemetry Grounded</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Info className="w-3 h-3" />
-              <span>Clinical Standards Compliant</span>
+            <div className="flex items-center gap-1.5">
+              <Lock className="w-2.5 h-2.5" />
+              <span>Private Node</span>
             </div>
           </div>
         </div>
