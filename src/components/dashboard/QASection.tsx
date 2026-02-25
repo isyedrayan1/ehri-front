@@ -22,17 +22,15 @@ export function QASection({ cityData }: QASectionProps) {
     if (!question.trim()) return;
 
     setLoading(true);
+    setAnswer(null);
     try {
       const response = await interactiveQa({
         question,
-        cityData: {
-            ...cityData,
-            explanation: cityData.explanation
-        },
+        cityData: cityData, // Passing the full grounded object
       });
       setAnswer(response.answer);
     } catch (error) {
-      setAnswer("Core cognitive node recalibrating. Data stream temporary unavailable.");
+      setAnswer("The environmental intelligence node is currently experiencing high load. Please retry your inquiry.");
     } finally {
       setLoading(false);
     }
@@ -63,7 +61,7 @@ export function QASection({ cityData }: QASectionProps) {
               type="submit" 
               disabled={loading || !question.trim()} 
               size="icon" 
-              className="absolute right-4 top-4 h-12 w-12 bg-foreground hover:bg-foreground/90 rounded-2xl transition-all shadow-md active:scale-95 disabled:opacity-30"
+              className="absolute right-4 top-4 h-12 w-12 bg-foreground text-background hover:bg-foreground/90 rounded-2xl transition-all shadow-md active:scale-95 disabled:opacity-30"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ChevronRight className="w-6 h-6" />}
             </Button>
@@ -80,7 +78,7 @@ export function QASection({ cityData }: QASectionProps) {
                 </p>
                 <div className="flex items-center gap-2 border-t border-border/40 pt-6">
                   <Sparkles className="w-4 h-4 text-primary/30" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Research Authenticated Response</span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Grounded Intelligence Response</span>
                 </div>
               </div>
             </div>
@@ -88,7 +86,7 @@ export function QASection({ cityData }: QASectionProps) {
         </CardContent>
       </Card>
       <p className="text-center text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/30">
-        AI responses are syntheses of live sensor telemetry and peer-reviewed historical benchmarks.
+        AI synthesized from live sensor data, clinical benchmarks, and 7-day trend analysis.
       </p>
     </div>
   );

@@ -13,21 +13,37 @@ import { z } from 'genkit';
 const CityDataSchema = z.object({
   city: z.string().describe('The name of the city.'),
   ehri: z.number().describe('The Environmental Health Risk Index for the city.'),
-  pollutionStress: z.number().describe('The pollution stress level.'),
-  heatStress: z.number().describe('The heat stress level.'),
-  humidityStress: z.number().describe('The humidity stress level.'),
-  topFactors: z
-    .array(z.object({ name: z.string(), value: z.number() }))
-    .describe('A list of top contributing factors to the EHRI, with their names and values.'),
-  explanation: z
-    .string()
-    .describe('A general AI-generated explanation of the environmental health situation.'),
+  status: z.string().describe('The risk status label (e.g., High Risk).'),
+  pollutionStress: z.number(),
+  heatStress: z.number(),
+  humidityStress: z.number(),
+  airQuality: z.object({
+    pm25: z.number(),
+    status: z.string(),
+  }),
+  weather: z.object({
+    temp: z.number(),
+    humidity: z.number(),
+    condition: z.string(),
+  }),
+  populationDensity: z.object({
+    value: z.string(),
+    context: z.string(),
+  }),
+  topFactors: z.array(z.object({ name: z.string(), value: z.number() })),
+  precautions: z.array(z.object({ text: z.string() })),
+  healthImpact: z.object({
+    respiratory: z.object({ summary: z.string(), severity: z.number() }),
+    cardiovascular: z.object({ summary: z.string(), severity: z.number() }),
+    vulnerability: z.object({ demographic: z.string(), riskFactor: z.string() }),
+  }),
+  explanation: z.string().describe('The general AI-generated explanation of the environmental health situation.'),
   trend: z.array(z.number()).describe('A historical trend of EHRI scores.'),
 });
 
 const InteractiveQaInputSchema = z.object({
-  question: z.string().describe("The user's natural language question about environmental health risks in the city."),
-  cityData: CityDataSchema.describe('The comprehensive environmental health risk data for the selected city.'),
+  question: z.string().describe("The user's natural language question about environmental health risks."),
+  cityData: CityDataSchema.describe('Comprehensive grounded data for the selected city.'),
 });
 export type InteractiveQaInput = z.infer<typeof InteractiveQaInputSchema>;
 
@@ -44,21 +60,26 @@ const interactiveQaPrompt = ai.definePrompt({
   name: 'interactiveQaPrompt',
   input: { schema: InteractiveQaInputSchema },
   output: { schema: InteractiveQaOutputSchema },
-  prompt: `You are an environmental health expert providing clear, concise, and helpful answers based on the provided city data. Focus on directly answering the user's question using the available information.
+  prompt: `You are an expert Environmental Health Assistant. Your goal is to provide trustworthy, scientifically grounded answers to user questions based EXCLUSIVELY on the provided city data.
 
-Here is the environmental health data for the city of {{{cityData.city}}}:
-- EHRI Score: {{{cityData.ehri}}}
-- Pollution Stress: {{cityData.pollutionStress}}
-- Heat Stress: {{cityData.heatStress}}
-- Humidity Stress: {{cityData.humidityStress}}
-- Top Contributing Factors:
-{{#each cityData.topFactors}}- {{{this.name}}} (Value: {{{this.value}}})
-{{/each}}
-- General Explanation: {{{cityData.explanation}}}
+DO NOT HALLUCINATE. If the data provided does not contain enough information to answer a specific question (e.g., about a specific street or a non-environmental topic), state clearly that you do not have that specific information.
 
-User's Question: "{{{question}}}"
+CONTEXT FOR THE CITY OF {{{cityData.city}}}:
+- CURRENT EHRI: {{{cityData.ehri}}} ({{{cityData.status}}})
+- AIR QUALITY: PM2.5 is {{{cityData.airQuality.pm25}}} ug/m3 (Status: {{{cityData.airQuality.status}}})
+- WEATHER: {{{cityData.weather.temp}}}°C, {{{cityData.weather.humidity}}}% Humidity (Condition: {{{cityData.weather.condition}}})
+- DENSITY: {{{cityData.populationDensity.value}}} - {{{cityData.populationDensity.context}}}
+- TOP STRESSORS: {{#each cityData.topFactors}}- {{{name}}} (Impact: {{{value}}}) {{/each}}
+- HEALTH PRECAUTIONS: {{#each cityData.precautions}}- {{{text}}} {{/each}}
+- CLINICAL IMPACTS:
+  * Respiratory: {{{cityData.healthImpact.respiratory.summary}}} (Severity: {{{cityData.healthImpact.respiratory.severity}}}%)
+  * Cardiovascular: {{{cityData.healthImpact.cardiovascular.summary}}} (Severity: {{{cityData.healthImpact.cardiovascular.severity}}}%)
+  * Vulnerability: Most at risk are {{{cityData.healthImpact.vulnerability.demographic}}} due to {{{cityData.healthImpact.vulnerability.riskFactor}}}.
+- 7-DAY EHRI TREND: [{{{cityData.trend}}}]
 
-Based on the above data, please provide a clear and concise answer to the user's question. If the question cannot be definitively answered from the provided data, state that you do not have enough specific information, but you can refer to the general explanation or top factors if relevant. Do not make up information that is not present in the data.`,
+USER QUESTION: "{{{question}}}"
+
+Analyze the question against the context. If they ask about safety (like jogging), refer to the Air Quality, Weather, and Health Precautions. If they ask about vulnerable groups, refer to the Vulnerability section. Be concise, professional, and empathetic.`,
 });
 
 const interactiveQaFlow = ai.defineFlow(
