@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -6,7 +5,7 @@ import { interactiveQa } from "@/ai/flows/interactive-qa";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send, MessageSquareText, Bot, Loader2, Sparkles } from "lucide-react";
+import { Send, MessageCircleCode, Bot, Loader2, Sparkles, ChevronRight } from "lucide-react";
 import { CityRiskData } from "@/data/mock-data";
 
 interface QASectionProps {
@@ -33,59 +32,64 @@ export function QASection({ cityData }: QASectionProps) {
       });
       setAnswer(response.answer);
     } catch (error) {
-      setAnswer("Our intelligence node is currently recalibrating. Please try again shortly.");
+      setAnswer("Core cognitive node recalibrating. Data stream temporary unavailable.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Card className="border border-border/40 shadow-sm rounded-3xl bg-card overflow-hidden">
-      <CardContent className="p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-primary/5 rounded-xl">
-            <MessageSquareText className="w-4 h-4 text-primary" />
-          </div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-            Scientific Inquiry Gateway
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="relative group">
-          <Input
-            placeholder={`Query details about ${cityData.city}'s environmental load...`}
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            className="h-14 pl-6 pr-14 bg-[#f8fafc] border-none shadow-inner rounded-2xl focus:ring-1 focus:ring-primary/20 placeholder:text-muted-foreground/60 font-medium"
-            disabled={loading}
-          />
-          <Button 
-            type="submit" 
-            disabled={loading} 
-            size="icon" 
-            className="absolute right-2 top-2 h-10 w-10 bg-foreground hover:bg-foreground/90 rounded-xl transition-all shadow-md group-hover:scale-105"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-          </Button>
-        </form>
-
-        {answer && (
-          <div className="mt-6 p-6 rounded-2xl bg-[#f8fafc] border border-border/20 flex gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div className="mt-1 p-1.5 bg-foreground/5 rounded-lg shrink-0 h-fit">
-              <Bot className="w-4 h-4 text-foreground/70" />
+    <div className="space-y-6">
+      <Card className="border border-border/40 shadow-sm rounded-[2rem] bg-card/60 backdrop-blur-sm overflow-hidden transition-all duration-500 hover:shadow-xl hover:shadow-primary/[0.02]">
+        <CardContent className="p-8">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="p-2.5 bg-primary/5 rounded-xl">
+              <MessageCircleCode className="w-4 h-4 text-primary/70" />
             </div>
-            <div className="space-y-3">
-              <p className="text-sm text-foreground/80 leading-relaxed font-medium">
-                {answer}
-              </p>
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3 text-primary/40" />
-                <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Verified Response</span>
+            <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground/80">
+              Interactive Inquiry
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="relative group">
+            <Input
+              placeholder={`Investigate ${cityData.city}'s risk factors...`}
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              className="h-16 pl-8 pr-16 bg-muted/30 border-none shadow-inner rounded-2xl focus:ring-1 focus:ring-primary/10 placeholder:text-muted-foreground/40 font-medium text-lg transition-all"
+              disabled={loading}
+            />
+            <Button 
+              type="submit" 
+              disabled={loading || !question.trim()} 
+              size="icon" 
+              className="absolute right-3 top-3 h-10 w-10 bg-foreground hover:bg-foreground/90 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-30"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ChevronRight className="w-5 h-5" />}
+            </Button>
+          </form>
+
+          {answer && (
+            <div className="mt-8 p-8 rounded-3xl bg-primary/[0.02] border border-primary/5 flex gap-6 animate-in fade-in slide-in-from-top-4 duration-700">
+              <div className="mt-1.5 p-2 bg-foreground/5 rounded-xl shrink-0 h-fit">
+                <Bot className="w-5 h-5 text-foreground/60" />
+              </div>
+              <div className="space-y-4">
+                <p className="text-base text-foreground/80 leading-relaxed font-medium">
+                  {answer}
+                </p>
+                <div className="flex items-center gap-2 border-t border-border/40 pt-4">
+                  <Sparkles className="w-3.5 h-3.5 text-primary/30" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Authenticated System Response</span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
+      <p className="text-center text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">
+        AI responses are based on real-time sensor telemetry and historical benchmarks.
+      </p>
+    </div>
   );
 }

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -18,7 +17,7 @@ import { LoadingOverlay } from "@/components/dashboard/LoadingOverlay";
 import { fetchCityRisk } from "@/services/api";
 import { CityRiskData, defaultCity } from "@/data/mock-data";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, MapPin, ShieldCheck } from "lucide-react";
+import { AlertCircle, MapPin, ShieldCheck, Database } from "lucide-react";
 
 export default function Home() {
   const [currentCityName, setCurrentCityName] = useState(defaultCity);
@@ -44,54 +43,51 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#f8fafc]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 pb-24">
         <Header />
 
         {/* Section 1: Location & Initial Context */}
-        <section className="mb-12">
-           <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
-              <div className="space-y-4 w-full max-w-sm">
-                <div className="flex items-center gap-2 px-3 py-1 bg-primary/5 rounded-full w-fit">
-                   <MapPin className="w-3 h-3 text-primary" />
-                   <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Stationary Node Alpha-1</span>
+        <section className="mb-16 pt-8">
+           <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8">
+              <div className="space-y-6 w-full max-w-sm">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/5 rounded-full w-fit border border-primary/10">
+                   <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                   <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary/60">Live Signal: Alpha Node</span>
                 </div>
-                <CitySelector 
-                  currentCity={currentCityName} 
-                  onCityChange={setCurrentCityName} 
-                  disabled={loading}
-                />
+                <div className="space-y-1">
+                   <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest px-1">Selected Region</h2>
+                   <CitySelector 
+                    currentCity={currentCityName} 
+                    onCityChange={setCurrentCityName} 
+                    disabled={loading}
+                  />
+                </div>
               </div>
               
               {cityData && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full md:w-auto">
-                   <div className="p-4 bg-card rounded-2xl shadow-sm border border-border/40">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">EHRI Score</p>
-                      <p className="text-xl font-headline font-bold">{cityData.ehri}</p>
-                   </div>
-                   <div className="p-4 bg-card rounded-2xl shadow-sm border border-border/40">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">AQI Status</p>
-                      <p className="text-xl font-headline font-bold">{cityData.airQuality.status}</p>
-                   </div>
-                   <div className="p-4 bg-card rounded-2xl shadow-sm border border-border/40">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Thermal Load</p>
-                      <p className="text-xl font-headline font-bold">{cityData.weather.temp}°C</p>
-                   </div>
-                   <div className="p-4 bg-card rounded-2xl shadow-sm border border-border/40">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Risk Status</p>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-xs font-bold uppercase">Active</span>
-                      </div>
-                   </div>
+                <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                   {[
+                     { label: "EHRI SCORE", value: cityData.ehri, icon: Database },
+                     { label: "AQI STATUS", value: cityData.airQuality.status, icon: ShieldCheck },
+                     { label: "THERMAL LOAD", value: `${cityData.weather.temp}°C`, icon: Database },
+                   ].map((item, idx) => (
+                     <div key={idx} className="flex-1 md:flex-none min-w-[120px] p-5 bg-card rounded-2xl shadow-sm border border-border/40">
+                        <div className="flex items-center gap-2 mb-2">
+                           <item.icon className="w-3 h-3 text-muted-foreground/60" />
+                           <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">{item.label}</p>
+                        </div>
+                        <p className="text-lg font-headline font-bold">{item.value}</p>
+                     </div>
+                   ))}
                 </div>
               )}
            </div>
         </section>
 
         {error && (
-          <Alert variant="destructive" className="mb-8 rounded-2xl border-none shadow-sm">
+          <Alert variant="destructive" className="mb-12 rounded-3xl border-none shadow-sm">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>System Error</AlertTitle>
+            <AlertTitle>System Diagnostic Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -99,7 +95,7 @@ export default function Home() {
         {loading && <LoadingOverlay />}
 
         {cityData && (
-          <div className="space-y-12 animate-in fade-in duration-1000">
+          <div className="space-y-20 animate-in fade-in slide-in-from-bottom-4 duration-1000 ease-out">
             {/* Section 2: AI Summary (The "So What?") */}
             <section>
               <AIExplanationPanel cityData={cityData} />
@@ -112,9 +108,9 @@ export default function Home() {
 
             {/* Section 4: All Metrics (The Bento Grid) */}
             <section>
-              <div className="flex items-center gap-3 mb-6">
-                 <h2 className="text-lg font-headline font-bold">Environmental Sensor Network</h2>
-                 <div className="h-px flex-1 bg-border/40" />
+              <div className="flex items-center gap-4 mb-10">
+                 <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">Environmental Sensor Matrix</h2>
+                 <div className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
               </div>
               <div className="bento-grid">
                 {/* Primary Metric (2x2) */}
@@ -130,16 +126,16 @@ export default function Home() {
                   <WeatherCard weather={cityData.weather} />
                 </div>
 
-                <div className="md:col-span-2">
-                  <TrendChart trend={cityData.trend} />
-                </div>
-
                 <div className="md:col-span-1">
                   <PopulationDensityCard density={cityData.populationDensity} />
                 </div>
 
                 <div className="md:col-span-1">
                   <PrecautionsCard precautions={cityData.precautions} />
+                </div>
+
+                <div className="md:col-span-2">
+                  <TrendChart trend={cityData.trend} />
                 </div>
 
                 <div className="md:col-span-2">
@@ -154,24 +150,27 @@ export default function Home() {
 
             {/* Section 5: Health Impact Analysis */}
             <section>
-              <div className="flex items-center gap-3 mb-6">
-                 <h2 className="text-lg font-headline font-bold">Health Impact Analysis</h2>
-                 <div className="h-px flex-1 bg-border/40" />
+              <div className="flex items-center gap-4 mb-10">
+                 <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">Biomedical Impact Analysis</h2>
+                 <div className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
               </div>
               <HealthImpactPanel healthImpact={cityData.healthImpact} />
             </section>
           </div>
         )}
 
-        <footer className="mt-24 pt-12 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
-          <div className="flex items-center gap-4">
-             <ShieldCheck className="w-5 h-5 text-primary/40" />
-             <span>&copy; {new Date().getFullYear()} EHRI Research Lab • Institute of Atmospheric Physics</span>
+        <footer className="mt-32 pt-16 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-12 text-[10px] uppercase tracking-[0.25em] text-muted-foreground/60 font-bold">
+          <div className="flex items-center gap-6">
+             <div className="flex items-center gap-2">
+               <ShieldCheck className="w-4 h-4 text-primary/30" />
+               <span>Protocol Secure L-7</span>
+             </div>
+             <span>&copy; {new Date().getFullYear()} EHRI Research Consortium</span>
           </div>
-          <div className="flex gap-8">
-            <a href="#" className="hover:text-foreground transition-colors">Methodology</a>
-            <a href="#" className="hover:text-foreground transition-colors">API Gateway</a>
-            <a href="#" className="hover:text-foreground transition-colors">Whitepapers</a>
+          <div className="flex gap-10">
+            <a href="#" className="hover:text-foreground transition-all">Documentation</a>
+            <a href="#" className="hover:text-foreground transition-all">Data Privacy</a>
+            <a href="#" className="hover:text-foreground transition-all">Academic Citations</a>
           </div>
         </footer>
       </div>
