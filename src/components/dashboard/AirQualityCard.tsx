@@ -1,8 +1,7 @@
-
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { LineChart, Line, ResponsiveContainer } from "recharts";
+import { AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
 import { Wind } from "lucide-react";
 
 interface AirQualityCardProps {
@@ -14,14 +13,14 @@ interface AirQualityCardProps {
 }
 
 export function AirQualityCard({ data }: AirQualityCardProps) {
-  const chartData = data.trend.map((val, i) => ({ value: val }));
+  const chartData = data.trend.map((val, i) => ({ value: val, name: `T-${6-i}h` }));
 
   return (
-    <Card className="border-none shadow-[0_4px_20px_rgba(0,0,0,0.03)] rounded-2xl bg-card overflow-hidden h-full">
+    <Card className="border-none shadow-[0_4px_20px_rgba(0,0,0,0.03)] rounded-2xl bg-card overflow-hidden h-full group hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
       <CardContent className="p-6 flex flex-col h-full">
         <div className="flex items-start justify-between mb-4">
-          <div className="p-2 bg-muted rounded-xl">
-            <Wind className="w-4 h-4 text-muted-foreground" />
+          <div className="p-2 bg-muted rounded-xl transition-colors group-hover:bg-primary/5">
+            <Wind className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
           </div>
           <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             PM2.5 Metric
@@ -37,17 +36,37 @@ export function AirQualityCard({ data }: AirQualityCardProps) {
           {data.status}
         </p>
 
-        <div className="mt-auto h-12 w-full">
+        <div className="mt-auto h-20 w-full -mx-2">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <Line 
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="colorPm" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--foreground))" stopOpacity={0.15}/>
+                  <stop offset="95%" stopColor="hsl(var(--foreground))" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <Tooltip 
+                contentStyle={{ 
+                  borderRadius: '12px', 
+                  border: 'none', 
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  padding: '8px 12px'
+                }}
+                labelStyle={{ display: 'none' }}
+                cursor={{ stroke: 'hsl(var(--foreground))', strokeWidth: 1, strokeDasharray: '4 4' }}
+              />
+              <Area 
                 type="monotone" 
                 dataKey="value" 
                 stroke="hsl(var(--foreground))" 
-                strokeWidth={2} 
-                dot={false}
+                strokeWidth={2.5} 
+                fillOpacity={1} 
+                fill="url(#colorPm)"
+                animationDuration={1500}
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       </CardContent>
