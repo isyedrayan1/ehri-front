@@ -9,7 +9,8 @@ import {
   Users, 
   AlertTriangle, 
   Microscope,
-  Info
+  Info,
+  ChevronRight
 } from "lucide-react";
 import { CityRiskData } from "@/data/mock-data";
 import { cn } from "@/lib/utils";
@@ -25,103 +26,111 @@ export function HealthImpactPanel({ healthImpact }: HealthImpactPanelProps) {
     return "Standard";
   };
 
+  const getSeverityColor = (severity: number) => {
+    if (severity > 75) return "text-red-600 bg-red-50 border-red-100";
+    if (severity > 50) return "text-orange-600 bg-orange-50 border-orange-100";
+    return "text-blue-600 bg-blue-50 border-blue-100";
+  };
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-1000">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div className="space-y-12 animate-in fade-in duration-1000 ease-in-out">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         {/* Main Clinical Streams */}
-        <div className="lg:col-span-8 space-y-6">
-          <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.02)] rounded-[2.5rem] bg-card overflow-hidden">
-            <CardContent className="p-8 md:p-12 space-y-12">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-border/40 pb-8">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-primary/5 rounded-2xl">
-                    <Microscope className="w-5 h-5 text-primary/70" />
+        <div className="lg:col-span-8">
+          <Card className="border-none shadow-[0_8px_40px_rgb(0,0,0,0.02)] rounded-[2.5rem] bg-card/80 backdrop-blur-sm h-full flex flex-col overflow-hidden border border-border/20">
+            <CardContent className="p-8 md:p-12 flex-1 flex flex-col">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12 pb-8 border-b border-border/40">
+                <div className="flex items-center gap-5">
+                  <div className="p-3.5 bg-primary/5 rounded-[1.25rem]">
+                    <Microscope className="w-6 h-6 text-primary/70" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">Biomedical Pathophysiology</h3>
-                    <p className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-widest mt-1">Diagnostic System Stream Active</p>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/60">Biomedical Pathophysiology</h3>
+                    <p className="text-lg font-headline font-bold text-foreground mt-0.5">Diagnostic Synthesis</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-1.5 bg-green-500/5 rounded-full border border-green-500/10 w-fit">
-                   <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                   <span className="text-[9px] font-bold uppercase tracking-widest text-green-600">Clinical Telemetry Sync</span>
+                <div className="flex items-center gap-2.5 px-4 py-2 bg-green-500/5 rounded-full border border-green-500/10 w-fit">
+                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                   <span className="text-[10px] font-bold uppercase tracking-widest text-green-600">Active Telemetry Sync</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
-                {/* Respiratory */}
-                <div className="space-y-8">
-                  <div className="flex items-start justify-between">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-16 flex-1">
+                {/* Respiratory Section */}
+                <div className="flex flex-col">
+                  <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-4">
-                      <div className="p-2.5 bg-blue-50 rounded-2xl">
+                      <div className="p-2.5 bg-blue-500/5 rounded-2xl">
                         <Activity className="w-5 h-5 text-blue-500" />
                       </div>
-                      <h4 className="font-headline font-bold text-xl">Respiratory System</h4>
+                      <h4 className="font-headline font-bold text-xl tracking-tight">Respiratory System</h4>
                     </div>
-                    <Badge variant="outline" className={cn("text-[9px] uppercase font-black px-3 py-0.5 border-none tracking-widest", 
-                      healthImpact.respiratory.severity > 75 ? "bg-red-50 text-red-600" : "bg-blue-50 text-blue-600"
+                    <Badge variant="outline" className={cn("text-[9px] font-black uppercase px-2.5 py-0.5 tracking-widest border", 
+                      getSeverityColor(healthImpact.respiratory.severity)
                     )}>
                       {getSeverityLabel(healthImpact.respiratory.severity)}
                     </Badge>
                   </div>
                   
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground/80 leading-relaxed font-medium min-h-[4.5rem]">
+                  <div className="space-y-6 flex-1 flex flex-col">
+                    <p className="text-sm text-muted-foreground/90 leading-relaxed font-medium min-h-[4rem]">
                       {healthImpact.respiratory.summary}
                     </p>
                     
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
-                        <span>Systemic Inflammatory Load</span>
-                        <span>{healthImpact.respiratory.severity}%</span>
+                    <div className="space-y-3 mt-auto">
+                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
+                        <span>Inflammatory Load</span>
+                        <span className="text-foreground">{healthImpact.respiratory.severity}%</span>
                       </div>
-                      <Progress value={healthImpact.respiratory.severity} className="h-1.5 bg-muted/30" />
+                      <Progress value={healthImpact.respiratory.severity} className="h-2 bg-muted/30" />
                     </div>
 
-                    <div className="flex flex-wrap gap-2 pt-2">
+                    <div className="flex flex-wrap gap-2 pt-4">
                       {healthImpact.respiratory.indicators.map((ind, i) => (
-                        <span key={i} className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 bg-muted/40 rounded-lg text-muted-foreground/70 border border-border/20">
+                        <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/30 rounded-xl text-[10px] font-bold text-muted-foreground/80 border border-border/10">
+                          <ChevronRight className="w-3 h-3 text-primary/30" />
                           {ind}
-                        </span>
+                        </div>
                       ))}
                     </div>
                   </div>
                 </div>
 
-                {/* Cardiovascular */}
-                <div className="space-y-8">
-                  <div className="flex items-start justify-between">
+                {/* Cardiovascular Section */}
+                <div className="flex flex-col">
+                  <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-4">
-                      <div className="p-2.5 bg-red-50 rounded-2xl">
+                      <div className="p-2.5 bg-red-500/5 rounded-2xl">
                         <Heart className="w-5 h-5 text-red-500" />
                       </div>
-                      <h4 className="font-headline font-bold text-xl">Cardiovascular Health</h4>
+                      <h4 className="font-headline font-bold text-xl tracking-tight">Cardiovascular Health</h4>
                     </div>
-                    <Badge variant="outline" className={cn("text-[9px] uppercase font-black px-3 py-0.5 border-none tracking-widest", 
-                      healthImpact.cardiovascular.severity > 75 ? "bg-red-50 text-red-600" : "bg-red-50 text-red-600"
+                    <Badge variant="outline" className={cn("text-[9px] font-black uppercase px-2.5 py-0.5 tracking-widest border", 
+                      getSeverityColor(healthImpact.cardiovascular.severity)
                     )}>
                       {getSeverityLabel(healthImpact.cardiovascular.severity)}
                     </Badge>
                   </div>
                   
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground/80 leading-relaxed font-medium min-h-[4.5rem]">
+                  <div className="space-y-6 flex-1 flex flex-col">
+                    <p className="text-sm text-muted-foreground/90 leading-relaxed font-medium min-h-[4rem]">
                       {healthImpact.cardiovascular.summary}
                     </p>
                     
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
-                        <span>Oxidative Stress Index</span>
-                        <span>{healthImpact.cardiovascular.severity}%</span>
+                    <div className="space-y-3 mt-auto">
+                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
+                        <span>Oxidative Stress</span>
+                        <span className="text-foreground">{healthImpact.cardiovascular.severity}%</span>
                       </div>
-                      <Progress value={healthImpact.cardiovascular.severity} className="h-1.5 bg-muted/30" />
+                      <Progress value={healthImpact.cardiovascular.severity} className="h-2 bg-muted/30" />
                     </div>
 
-                    <div className="flex flex-wrap gap-2 pt-2">
+                    <div className="flex flex-wrap gap-2 pt-4">
                       {healthImpact.cardiovascular.indicators.map((ind, i) => (
-                        <span key={i} className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 bg-muted/40 rounded-lg text-muted-foreground/70 border border-border/20">
+                        <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/30 rounded-xl text-[10px] font-bold text-muted-foreground/80 border border-border/10">
+                          <ChevronRight className="w-3 h-3 text-primary/30" />
                           {ind}
-                        </span>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -132,54 +141,50 @@ export function HealthImpactPanel({ healthImpact }: HealthImpactPanelProps) {
         </div>
 
         {/* Sidebar Insights */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
-          <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.02)] rounded-[2.5rem] bg-card flex-1">
-            <CardContent className="p-8 md:p-10 flex flex-col h-full justify-between">
-              <div className="space-y-10">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-primary/5 rounded-2xl">
-                    <Users className="w-5 h-5 text-primary/70" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">Vulnerability Node</h3>
-                  </div>
+        <div className="lg:col-span-4 flex flex-col gap-8">
+          <Card className="border-none shadow-[0_8px_40px_rgb(0,0,0,0.02)] rounded-[2.5rem] bg-card/80 backdrop-blur-sm flex-1 border border-border/20">
+            <CardContent className="p-8 md:p-10 flex flex-col h-full">
+              <div className="flex items-center gap-4 mb-12">
+                <div className="p-3 bg-primary/5 rounded-[1rem]">
+                  <Users className="w-5 h-5 text-primary/70" />
                 </div>
-                
-                <div className="space-y-6">
-                  <div className="group p-6 rounded-[2rem] bg-muted/20 border border-border/30 space-y-3 transition-colors hover:bg-muted/30">
-                     <p className="text-[9px] font-black uppercase tracking-[0.25em] text-primary/40">Priority Demographic</p>
-                     <p className="text-base font-bold text-foreground leading-tight">{healthImpact.vulnerability.demographic}</p>
-                  </div>
-                  <div className="group p-6 rounded-[2rem] bg-muted/20 border border-border/30 space-y-3 transition-colors hover:bg-muted/30">
-                     <p className="text-[9px] font-black uppercase tracking-[0.25em] text-primary/40">Primary Risk Determinant</p>
-                     <p className="text-sm font-medium text-muted-foreground/90 leading-relaxed italic border-l-2 border-primary/10 pl-4">
+                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/60">Vulnerability Matrix</h3>
+              </div>
+              
+              <div className="space-y-6 flex-1">
+                <div className="p-6 rounded-[2rem] bg-background/40 border border-border/30 space-y-3 hover:border-primary/20 transition-all group">
+                   <p className="text-[9px] font-black uppercase tracking-[0.3em] text-primary/40 group-hover:text-primary/60 transition-colors">Risk Priority Demographic</p>
+                   <p className="text-lg font-headline font-bold text-foreground leading-tight">{healthImpact.vulnerability.demographic}</p>
+                </div>
+                <div className="p-6 rounded-[2rem] bg-background/40 border border-border/30 space-y-4 hover:border-primary/20 transition-all group">
+                   <p className="text-[9px] font-black uppercase tracking-[0.3em] text-primary/40 group-hover:text-primary/60 transition-colors">Critical Determinant</p>
+                   <div className="border-l-2 border-primary/10 pl-4 py-1">
+                     <p className="text-sm font-medium text-muted-foreground leading-relaxed italic">
                        "{healthImpact.vulnerability.riskFactor}"
                      </p>
-                  </div>
+                   </div>
                 </div>
               </div>
 
-              <div className="space-y-8 mt-12 pt-10 border-t border-border/40">
-                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-primary/5 rounded-2xl">
+              <div className="mt-12 pt-10 border-t border-border/40 space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary/5 rounded-[1rem]">
                     <AlertTriangle className="w-5 h-5 text-primary/70" />
                   </div>
-                  <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">Prognosis Matrix</h3>
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/60">Long-term Prognosis</h3>
                 </div>
-                <div className="relative">
-                   <p className="text-sm text-muted-foreground/70 leading-relaxed font-medium italic">
-                     {healthImpact.longTerm}
-                   </p>
-                </div>
+                <p className="text-sm text-muted-foreground/80 leading-relaxed font-medium italic pl-1">
+                  {healthImpact.longTerm}
+                </p>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-4 text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 py-8 border-t border-border/20">
+      <div className="flex items-center justify-center gap-4 text-[9px] font-black uppercase tracking-[0.45em] text-muted-foreground/30 py-4">
         <Info className="w-3.5 h-3.5" />
-        <span>Research-Grade clinical benchmarks referenced against WHO Air Quality Guidelines (2021)</span>
+        <span>Clinical telemetry cross-referenced with WHO Air Quality Standards (2021)</span>
       </div>
     </div>
   );
