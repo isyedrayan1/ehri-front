@@ -20,9 +20,9 @@ export function RiskGauge({ score, status }: RiskGaugeProps) {
   const label = getRiskLabel(score);
 
   return (
-    <Card className="h-full border-none shadow-[0_8px_30px_rgb(0,0,0,0.02)] rounded-[2.5rem] bg-card group overflow-hidden">
-      <CardContent className="p-10 flex flex-col h-full">
-        <div className="flex items-start justify-between mb-10">
+    <Card className="h-full border-none shadow-[0_8px_30px_rgb(0,0,0,0.02)] rounded-[2.5rem] bg-card group overflow-hidden flex flex-col">
+      <CardContent className="p-10 flex flex-col flex-1">
+        <div className="flex items-start justify-between mb-8">
           <div className="flex flex-col gap-1.5">
             <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground/60">
               Diagnostic Index
@@ -36,8 +36,8 @@ export function RiskGauge({ score, status }: RiskGaugeProps) {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center relative py-4">
-          <div className="h-[280px] w-full max-w-[320px]">
+        <div className="flex-1 flex flex-col items-center justify-center relative min-h-[300px]">
+          <div className="h-full w-full max-w-[340px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -46,8 +46,8 @@ export function RiskGauge({ score, status }: RiskGaugeProps) {
                   cy="90%"
                   startAngle={180}
                   endAngle={0}
-                  innerRadius={100}
-                  outerRadius={125}
+                  innerRadius={110}
+                  outerRadius={135}
                   paddingAngle={0}
                   dataKey="value"
                   stroke="none"

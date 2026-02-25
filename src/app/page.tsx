@@ -16,7 +16,7 @@ import { LoadingOverlay } from "@/components/dashboard/LoadingOverlay";
 import { fetchCityRisk } from "@/services/api";
 import { CityRiskData, defaultCity } from "@/data/mock-data";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, ShieldCheck, Database } from "lucide-react";
+import { AlertCircle, ShieldCheck, Database, LayoutGrid } from "lucide-react";
 
 export default function Home() {
   const [currentCityName, setCurrentCityName] = useState(defaultCity);
@@ -45,7 +45,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12 pb-24">
         <Header />
 
-        {/* Section 1: Location & Initial Context */}
+        {/* Section 1: Location Details */}
         <section className="mb-16 pt-8">
            <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8">
               <div className="space-y-6 w-full max-w-sm">
@@ -96,16 +96,22 @@ export default function Home() {
         {cityData && (
           <div className="space-y-24 animate-in fade-in slide-in-from-bottom-4 duration-1000 ease-out">
             
-            {/* Section 2: Sensor Matrix (The Bento Grid) */}
+            {/* Section 2: Sensor Matrix (Bento Grid) */}
             <section>
               <div className="flex items-center gap-4 mb-10">
+                 <div className="p-2 bg-foreground/5 rounded-xl">
+                    <LayoutGrid className="w-4 h-4 text-foreground/70" />
+                 </div>
                  <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">Environmental Sensor Matrix</h2>
                  <div className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
               </div>
               <div className="bento-grid">
+                {/* Primary Card: Large diagnostic index */}
                 <div className="md:col-span-2 md:row-span-2">
                   <RiskGauge score={cityData.ehri} status={cityData.status} />
                 </div>
+                
+                {/* Secondary Cards: Metrics and Context */}
                 <div className="md:col-span-1">
                   <AirQualityCard data={cityData.airQuality} />
                 </div>
@@ -118,6 +124,8 @@ export default function Home() {
                 <div className="md:col-span-1">
                   <PrecautionsCard precautions={cityData.precautions} />
                 </div>
+                
+                {/* Tertiary Cards: Trends and Breakdown */}
                 <div className="md:col-span-2">
                   <TrendChart trend={cityData.trend} />
                 </div>
