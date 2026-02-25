@@ -24,6 +24,11 @@ export interface CityRiskData {
   explanation: string;
   trend: number[];
   precautions: { icon: string; text: string }[];
+  healthImpact: {
+    respiratory: string;
+    cardiovascular: string;
+    longTerm: string;
+  };
 }
 
 export const citiesData: Record<string, CityRiskData> = {
@@ -56,10 +61,15 @@ export const citiesData: Record<string, CityRiskData> = {
     explanation: "Delhi's EHRI is primarily driven by chronic particulate matter concentrations and intense seasonal heat waves. The synergy between high density and stagnant air creates a significant health burden.",
     trend: [65, 68, 70, 72, 71, 72.5, 73.4],
     precautions: [
-      { icon: "Mask", text: "Wear N95 mask outdoors" },
+      { icon: "Shield", text: "Wear N95 mask outdoors" },
       { icon: "Activity", text: "Avoid peak-hour exertion" },
       { icon: "Droplets", text: "Maintain hyper-hydration" }
-    ]
+    ],
+    healthImpact: {
+      respiratory: "High risk of exacerbation for asthma and COPD patients due to PM2.5 levels.",
+      cardiovascular: "Increased risk of systemic inflammation and hypertension.",
+      longTerm: "Potential for reduced lung function and chronic respiratory illness."
+    }
   },
   "Mumbai": {
     city: "Mumbai",
@@ -93,7 +103,12 @@ export const citiesData: Record<string, CityRiskData> = {
       { icon: "Home", text: "Use dehumidifiers indoors" },
       { icon: "Wind", text: "Seek ventilated spaces" },
       { icon: "Sun", text: "Limit UV exposure" }
-    ]
+    ],
+    healthImpact: {
+      respiratory: "Moderate risk from humidity-induced allergens and fungal spores.",
+      cardiovascular: "Standard coastal stressors; thermal strain is the primary concern.",
+      longTerm: "Chronic exposure to humid pollutants may impact metabolic health."
+    }
   },
   "Chennai": {
     city: "Chennai",
@@ -127,7 +142,12 @@ export const citiesData: Record<string, CityRiskData> = {
       { icon: "GlassWater", text: "Drink electrolyte fluids" },
       { icon: "Shirt", text: "Wear breathable fabrics" },
       { icon: "Clock", text: "Monitor wet-bulb temp" }
-    ]
+    ],
+    healthImpact: {
+      respiratory: "Relatively low impact compared to North Indian cities.",
+      cardiovascular: "High thermal stress necessitates monitoring for heat exhaustion.",
+      longTerm: "Chronic heat exposure linked to renal stress and electrolyte imbalance."
+    }
   },
   "Bangalore": {
     city: "Bangalore",
@@ -161,7 +181,12 @@ export const citiesData: Record<string, CityRiskData> = {
       { icon: "Smile", text: "Enjoy outdoor activities" },
       { icon: "Flower2", text: "Monitor allergy alerts" },
       { icon: "Filter", text: "Indoor HEPA recommended" }
-    ]
+    ],
+    healthImpact: {
+      respiratory: "Seasonal allergic rhinitis and asthma triggers from pollen.",
+      cardiovascular: "Low baseline risk from environmental factors.",
+      longTerm: "Optimal environment for cardiovascular longevity."
+    }
   },
   "Kolkata": {
     city: "Kolkata",
@@ -192,10 +217,15 @@ export const citiesData: Record<string, CityRiskData> = {
     explanation: "Kolkata suffers from high population density and winter temperature inversions that trap industrial and domestic emissions, leading to high seasonal EHRI spikes.",
     trend: [55, 57, 59, 60, 62, 61, 61.2],
     precautions: [
-      { icon: "Mask", text: "High-grade mask outdoors" },
-      { icon: "AirVent", text: "Use air purification" },
+      { icon: "Shield", text: "High-grade mask outdoors" },
+      { icon: "Fan", text: "Use air purification" },
       { icon: "Stethoscope", text: "Monitor respiratory health" }
-    ]
+    ],
+    healthImpact: {
+      respiratory: "High incidence of respiratory symptoms during inversion events.",
+      cardiovascular: "Particulate-linked cardiovascular strain is significant.",
+      longTerm: "Increased risk of chronic pulmonary conditions."
+    }
   }
 };
 

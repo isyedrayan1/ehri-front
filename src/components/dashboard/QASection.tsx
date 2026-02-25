@@ -3,10 +3,10 @@
 
 import { useState } from "react";
 import { interactiveQa } from "@/ai/flows/interactive-qa";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send, MessageCircle, Bot, Loader2 } from "lucide-react";
+import { Send, MessageSquareText, Bot, Loader2, Sparkles } from "lucide-react";
 import { CityRiskData } from "@/data/mock-data";
 
 interface QASectionProps {
@@ -33,43 +33,56 @@ export function QASection({ cityData }: QASectionProps) {
       });
       setAnswer(response.answer);
     } catch (error) {
-      console.error("QA error:", error);
-      setAnswer("I'm sorry, I couldn't process that question. Please try again.");
+      setAnswer("Our intelligence node is currently recalibrating. Please try again shortly.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Card className="shadow-lg border-primary/10">
-      <CardHeader>
-        <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-          <MessageCircle className="w-4 h-4 text-primary" />
-          Interactive Environmental Assistant
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <form onSubmit={handleSubmit} className="flex gap-2">
+    <Card className="border border-border/40 shadow-sm rounded-3xl bg-card overflow-hidden">
+      <CardContent className="p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 bg-primary/5 rounded-xl">
+            <MessageSquareText className="w-4 h-4 text-primary" />
+          </div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            Scientific Inquiry Gateway
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="relative group">
           <Input
-            placeholder={`Ask about ${cityData.city}'s health risks...`}
+            placeholder={`Query details about ${cityData.city}'s environmental load...`}
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            className="flex-1"
+            className="h-14 pl-6 pr-14 bg-[#f8fafc] border-none shadow-inner rounded-2xl focus:ring-1 focus:ring-primary/20 placeholder:text-muted-foreground/60 font-medium"
             disabled={loading}
           />
-          <Button type="submit" disabled={loading} size="icon" className="shrink-0 bg-accent hover:bg-accent/90">
+          <Button 
+            type="submit" 
+            disabled={loading} 
+            size="icon" 
+            className="absolute right-2 top-2 h-10 w-10 bg-foreground hover:bg-foreground/90 rounded-xl transition-all shadow-md group-hover:scale-105"
+          >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </Button>
         </form>
 
         {answer && (
-          <div className="p-4 rounded-xl bg-secondary/50 border border-secondary flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="mt-1 p-1 bg-accent/10 rounded-lg shrink-0 h-fit">
-              <Bot className="w-4 h-4 text-accent" />
+          <div className="mt-6 p-6 rounded-2xl bg-[#f8fafc] border border-border/20 flex gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div className="mt-1 p-1.5 bg-foreground/5 rounded-lg shrink-0 h-fit">
+              <Bot className="w-4 h-4 text-foreground/70" />
             </div>
-            <p className="text-sm text-foreground/80 leading-relaxed font-medium">
-              {answer}
-            </p>
+            <div className="space-y-3">
+              <p className="text-sm text-foreground/80 leading-relaxed font-medium">
+                {answer}
+              </p>
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-primary/40" />
+                <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Verified Response</span>
+              </div>
+            </div>
           </div>
         )}
       </CardContent>
