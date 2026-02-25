@@ -43,7 +43,7 @@ export function RiskGauge({ score, status }: RiskGaugeProps) {
                 <Pie
                   data={data}
                   cx="50%"
-                  cy="90%"
+                  cy="85%"
                   startAngle={180}
                   endAngle={0}
                   innerRadius={110}
@@ -60,7 +60,7 @@ export function RiskGauge({ score, status }: RiskGaugeProps) {
             </ResponsiveContainer>
           </div>
           
-          <div className="absolute top-[48%] flex flex-col items-center">
+          <div className="absolute top-[52%] flex flex-col items-center">
             <span className="text-8xl font-headline font-bold tracking-tighter" style={{ color }}>
               {score.toFixed(1)}
             </span>
