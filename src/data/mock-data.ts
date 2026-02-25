@@ -25,8 +25,20 @@ export interface CityRiskData {
   trend: number[];
   precautions: { icon: string; text: string }[];
   healthImpact: {
-    respiratory: string;
-    cardiovascular: string;
+    respiratory: {
+      summary: string;
+      severity: number;
+      indicators: string[];
+    };
+    cardiovascular: {
+      summary: string;
+      severity: number;
+      indicators: string[];
+    };
+    vulnerability: {
+      demographic: string;
+      riskFactor: string;
+    };
     longTerm: string;
   };
 }
@@ -66,9 +78,21 @@ export const citiesData: Record<string, CityRiskData> = {
       { icon: "Droplets", text: "Maintain hyper-hydration" }
     ],
     healthImpact: {
-      respiratory: "High risk of exacerbation for asthma and COPD patients due to PM2.5 levels.",
-      cardiovascular: "Increased risk of systemic inflammation and hypertension.",
-      longTerm: "Potential for reduced lung function and chronic respiratory illness."
+      respiratory: {
+        summary: "Critical particulate load causing acute airway inflammation.",
+        severity: 85,
+        indicators: ["Asthma exacerbation", "COPD stress", "Reduced FVC"]
+      },
+      cardiovascular: {
+        summary: "Systemic oxidative stress linked to ultrafine particles.",
+        severity: 72,
+        indicators: ["Hypertension", "Arrhythmia risk", "Endothelial strain"]
+      },
+      vulnerability: {
+        demographic: "Elderly and children under 5",
+        riskFactor: "Chronic exposure to PM2.5 levels exceeding WHO limits by 10x."
+      },
+      longTerm: "Sustained exposure leads to permanent reduction in lung capacity and increased risk of ischemic heart disease."
     }
   },
   "Mumbai": {
@@ -105,9 +129,21 @@ export const citiesData: Record<string, CityRiskData> = {
       { icon: "Sun", text: "Limit UV exposure" }
     ],
     healthImpact: {
-      respiratory: "Moderate risk from humidity-induced allergens and fungal spores.",
-      cardiovascular: "Standard coastal stressors; thermal strain is the primary concern.",
-      longTerm: "Chronic exposure to humid pollutants may impact metabolic health."
+      respiratory: {
+        summary: "High moisture and vehicular emissions trap pollutants at ground level.",
+        severity: 54,
+        indicators: ["Mold allergies", "Rhinitis", "Airway hyper-reactivity"]
+      },
+      cardiovascular: {
+        summary: "Thermal stress exacerbates underlying cardiovascular conditions.",
+        severity: 48,
+        indicators: ["Tachycardia", "Dehydration strain", "Edema risk"]
+      },
+      vulnerability: {
+        demographic: "Traffic workers and commuters",
+        riskFactor: "Exposure to elevated humidity levels trapping PM10."
+      },
+      longTerm: "Chronic respiratory stress from allergen-pollutant synergy."
     }
   },
   "Chennai": {
@@ -144,9 +180,21 @@ export const citiesData: Record<string, CityRiskData> = {
       { icon: "Clock", text: "Monitor wet-bulb temp" }
     ],
     healthImpact: {
-      respiratory: "Relatively low impact compared to North Indian cities.",
-      cardiovascular: "High thermal stress necessitates monitoring for heat exhaustion.",
-      longTerm: "Chronic heat exposure linked to renal stress and electrolyte imbalance."
+      respiratory: {
+        summary: "Low particulate risk; primary stress is humidity-linked mucosal irritation.",
+        severity: 35,
+        indicators: ["Mucosal dryness", "Sinusitis risk", "Allergic triggers"]
+      },
+      cardiovascular: {
+        summary: "Thermal load requires efficient thermoregulation.",
+        severity: 78,
+        indicators: ["Heat exhaustion", "Renal strain", "Fluid imbalance"]
+      },
+      vulnerability: {
+        demographic: "Outdoor laborers and children",
+        riskFactor: "Intense wet-bulb temperatures leading to thermal fatigue."
+      },
+      longTerm: "Chronic heat exposure risk for kidney health."
     }
   },
   "Bangalore": {
@@ -183,9 +231,21 @@ export const citiesData: Record<string, CityRiskData> = {
       { icon: "Filter", text: "Indoor HEPA recommended" }
     ],
     healthImpact: {
-      respiratory: "Seasonal allergic rhinitis and asthma triggers from pollen.",
-      cardiovascular: "Low baseline risk from environmental factors.",
-      longTerm: "Optimal environment for cardiovascular longevity."
+      respiratory: {
+        summary: "Particulate-low environment with seasonal bio-aerosol risk.",
+        severity: 28,
+        indicators: ["Pollen allergies", "Hay fever", "Allergic asthma"]
+      },
+      cardiovascular: {
+        summary: "Minimal environmental strain on heart and vessels.",
+        severity: 22,
+        indicators: ["Low stress levels", "Healthy BP baseline", "Stable thermoregulation"]
+      },
+      vulnerability: {
+        demographic: "Individuals with seasonal allergies",
+        riskFactor: "Urban vegetation diversity leading to high pollen counts."
+      },
+      longTerm: "Optimal urban living environment for metabolic and respiratory longevity."
     }
   },
   "Kolkata": {
@@ -222,9 +282,21 @@ export const citiesData: Record<string, CityRiskData> = {
       { icon: "Stethoscope", text: "Monitor respiratory health" }
     ],
     healthImpact: {
-      respiratory: "High incidence of respiratory symptoms during inversion events.",
-      cardiovascular: "Particulate-linked cardiovascular strain is significant.",
-      longTerm: "Increased risk of chronic pulmonary conditions."
+      respiratory: {
+        summary: "Frequent winter inversions leading to high-load airway stress.",
+        severity: 74,
+        indicators: ["Chronic bronchitis", "Reduced peak flow", "Frequent infections"]
+      },
+      cardiovascular: {
+        summary: "Particulate-linked micro-vascular inflammation risk.",
+        severity: 65,
+        indicators: ["Ischemic events risk", "Systemic inflammation", "Vascular stiffening"]
+      },
+      vulnerability: {
+        demographic: "Slum populations and high-density zones",
+        riskFactor: "Restricted air flow in high-density areas trapping PM."
+      },
+      longTerm: "Significant impact on overall life expectancy due to cumulative particulate load."
     }
   }
 };
