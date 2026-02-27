@@ -6,17 +6,25 @@ import { generateAiExplanation } from "@/ai/flows/ai-generated-explanation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Loader2, Quote, BrainCircuit, MessageSquarePlus, ArrowRight } from "lucide-react";
-import { CityRiskData } from "@/data/mock-data";
+import { CityRiskData } from "@/services/api";
 
 interface AIExplanationPanelProps {
   cityData: CityRiskData;
+  aiSummary?: string;
+  coords?: { lat?: number; lng?: number };
 }
 
-export function AIExplanationPanel({ cityData }: AIExplanationPanelProps) {
-  const [explanation, setExplanation] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
+export function AIExplanationPanel({ cityData, aiSummary, coords }: AIExplanationPanelProps) {
+  const [explanation, setExplanation] = useState<string>(aiSummary || "");
+  const [loading, setLoading] = useState<boolean>(!aiSummary);
 
   useEffect(() => {
+    if (aiSummary) {
+      setExplanation(aiSummary);
+      setLoading(false);
+      return;
+    }
+
     async function getExplanation() {
       setLoading(true);
       try {
@@ -36,7 +44,7 @@ export function AIExplanationPanel({ cityData }: AIExplanationPanelProps) {
       }
     }
     getExplanation();
-  }, [cityData]);
+  }, [cityData, aiSummary]);
 
   return (
     <div className="relative">
@@ -79,7 +87,10 @@ export function AIExplanationPanel({ cityData }: AIExplanationPanelProps) {
               </div>
 
               <div className="lg:col-span-1 flex justify-center lg:justify-end">
-                <Link href={`/chat?city=${cityData.city}`} className="w-full sm:w-auto">
+                <Link 
+                  href={`/chat?city=${encodeURIComponent(cityData.city || "Delhi")}${coords?.lat ? `&lat=${coords.lat}` : ""}${coords?.lng ? `&lng=${coords.lng}` : ""}`} 
+                  className="w-full sm:w-auto"
+                >
                   <Button size="lg" className="w-full lg:w-auto h-14 px-8 rounded-2xl bg-foreground text-background hover:bg-foreground/90 text-xs font-bold gap-3 transition-all hover:scale-[1.02] shadow-xl shadow-primary/10 group">
                     <MessageSquarePlus className="w-4 h-4" />
                     Deep Inquiry

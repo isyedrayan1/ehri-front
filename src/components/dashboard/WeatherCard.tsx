@@ -4,19 +4,28 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Thermometer, Droplets, Cloud } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
+import { MetricSeverity } from "@/types/api";
+
 interface WeatherCardProps {
-  weather: {
+  weather?: {
     temp: number;
     humidity: number;
     condition: string;
   };
+  tempMetric?: MetricSeverity;
+  humidityMetric?: MetricSeverity;
 }
 
-export function WeatherCard({ weather }: WeatherCardProps) {
+export function WeatherCard({ weather, tempMetric, humidityMetric }: WeatherCardProps) {
+  // Priority: 1. metrics (API), 2. weather (Legacy)
+  const temp = tempMetric ? tempMetric.value : (weather?.temp ?? 0);
+  const condition = tempMetric ? tempMetric.description : (weather?.condition ?? "Unknown");
+  const humidity = humidityMetric ? humidityMetric.value : (weather?.humidity ?? 0);
+
   // Simple radial visualization for humidity
   const humidityData = [
-    { value: weather.humidity },
-    { value: 100 - weather.humidity },
+    { value: humidity },
+    { value: 100 - humidity },
   ];
 
   return (
@@ -32,8 +41,8 @@ export function WeatherCard({ weather }: WeatherCardProps) {
         </div>
 
         <div className="flex items-baseline gap-1 mb-1">
-          <span className="text-3xl font-headline font-bold">{weather.temp}°C</span>
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">{weather.condition}</span>
+          <span className="text-3xl font-headline font-bold">{temp}°C</span>
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">{condition}</span>
         </div>
 
         <div className="flex-1 flex items-center justify-center -my-4 relative">
@@ -60,7 +69,7 @@ export function WeatherCard({ weather }: WeatherCardProps) {
             </ResponsiveContainer>
           </div>
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-xs font-bold text-blue-600">{weather.humidity}%</span>
+            <span className="text-xs font-bold text-blue-600">{humidity}%</span>
             <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-tighter">Humid</span>
           </div>
         </div>

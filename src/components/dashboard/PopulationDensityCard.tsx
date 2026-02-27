@@ -4,16 +4,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Users } from "lucide-react";
 import { BarChart, Bar, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 
+import { MetricSeverity } from "@/types/api";
+
 interface PopulationDensityCardProps {
-  density: {
+  density?: {
     value: string;
     context: string;
   };
+  metric?: MetricSeverity;
 }
 
-export function PopulationDensityCard({ density }: PopulationDensityCardProps) {
+export function PopulationDensityCard({ density, metric }: PopulationDensityCardProps) {
+  // Priority: 1. metric (API), 2. density (Legacy)
+  const displayValue = metric ? `${metric.value.toLocaleString()}` : (density?.value.replace("/km²", "") ?? "0");
+  const displayContext = metric ? metric.description : (density?.context ?? "No data available.");
+  
   // Comparison data: Current vs "Critical" benchmark
-  const val = parseInt(density.value.replace(/,/g, ''));
+  const val = parseInt(displayValue.replace(/,/g, ''));
   const data = [
     { name: 'City', value: val },
     { name: 'Average', value: 8000 },
@@ -32,7 +39,7 @@ export function PopulationDensityCard({ density }: PopulationDensityCardProps) {
         </div>
 
         <div className="mb-2">
-          <span className="text-2xl font-headline font-bold">{density.value}</span>
+          <span className="text-2xl font-headline font-bold">{displayValue}</span>
           <span className="text-[10px] block font-bold text-muted-foreground uppercase">People per km²</span>
         </div>
         
@@ -55,7 +62,7 @@ export function PopulationDensityCard({ density }: PopulationDensityCardProps) {
         </div>
 
         <p className="text-[10px] leading-relaxed text-muted-foreground font-medium opacity-80 mt-auto">
-          {density.context}
+          {displayContext}
         </p>
       </CardContent>
     </Card>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { interactiveQa } from "@/ai/flows/interactive-qa";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { 
@@ -14,12 +13,23 @@ import {
   Database,
   Lock
 } from "lucide-react";
-import { CityRiskData } from "@/data/mock-data";
+import { CityRiskData } from "@/services/api";
 import { cn } from "@/lib/utils";
+import { sendChatMessage } from "@/services/chat";
+import { Audience, ConversationCard } from "@/types/api";
+import { ChatCardRenderer } from "@/components/chat/ChatCardRenderer";
+import { SuggestionChips } from "@/components/chat/SuggestionChips";
+import { AudienceToggle } from "@/components/chat/AudienceToggle";
+import { DetectedCitiesBadges } from "@/components/chat/DetectedCitiesBadges";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Message {
   role: "user" | "ai";
   content: string;
+  card?: ConversationCard;
+  suggestions?: string[];
+  detectedCities?: string[];
 }
 
 interface QASectionProps {
@@ -28,10 +38,11 @@ interface QASectionProps {
 
 export function QASection({ cityData }: QASectionProps) {
   const [question, setQuestion] = useState("");
+  const [audience, setAudience] = useState<Audience>("public");
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "ai",
-      content: `EHRI Intelligence Agent active. Currently monitoring the ${cityData.city} node with an EHRI of ${cityData.ehri}. I can interpret clinical risks, health advisories, and long-term environmental outcomes based on our grounded telemetry.`
+      content: `EHRI Intelligence Agent active. Currently monitoring the ${cityData.city} node with an EHRI of ${cityData.ehri.toFixed(1)}. I can interpret clinical risks, health advisories, and long-term environmental outcomes based on our grounded telemetry.`
     }
   ]);
   const [loading, setLoading] = useState(false);
@@ -43,21 +54,31 @@ export function QASection({ cityData }: QASectionProps) {
     }
   }, [messages, loading]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!question.trim() || loading) return;
+  const handleSubmit = async (e?: React.FormEvent, customQuestion?: string) => {
+    e?.preventDefault();
+    const query = customQuestion || question;
+    if (!query.trim() || loading) return;
 
-    const userMsg = question.trim();
+    const userMsg = query.trim();
     setQuestion("");
     setMessages(prev => [...prev, { role: "user", content: userMsg }]);
     setLoading(true);
 
     try {
-      const response = await interactiveQa({
-        question: userMsg,
-        cityData: cityData,
-      });
-      setMessages(prev => [...prev, { role: "ai", content: response.answer }]);
+      const history = messages.map(m => ({
+        role: (m.role === 'ai' ? 'assistant' : 'user') as 'assistant' | 'user',
+        content: m.content
+      }));
+
+      const response = await sendChatMessage(userMsg, audience, history);
+      
+      setMessages(prev => [...prev, { 
+        role: "ai", 
+        content: response.text,
+        card: response.cards[0], // Take first card if any
+        suggestions: response.suggestions,
+        detectedCities: response.detected_cities
+      }]);
     } catch (error) {
       setMessages(prev => [
         ...prev, 
@@ -102,7 +123,35 @@ export function QASection({ cityData }: QASectionProps) {
                     ? "bg-primary text-primary-foreground font-medium rounded-tr-sm" 
                     : "bg-[#f8fafc] border border-border/30 text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-tl-sm"
                 )}>
-                  {msg.content}
+                  {msg.role === "ai" ? (
+                    <div className="prose prose-sm prose-slate max-w-none">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    msg.content
+                  )}
+                  
+                  {msg.card && (
+                    <div className="mt-4">
+                      <ChatCardRenderer card={msg.card} />
+                    </div>
+                  )}
+
+                  {msg.suggestions && msg.role === "ai" && idx === messages.length - 1 && (
+                    <SuggestionChips 
+                      suggestions={msg.suggestions} 
+                      onSelect={(s) => handleSubmit(undefined, s)} 
+                      disabled={loading}
+                    />
+                  )}
+
+                  {msg.detectedCities && msg.detectedCities.length > 0 && msg.role === "ai" && (
+                    <div className="mt-4 pt-4 border-t border-border/10">
+                      <DetectedCitiesBadges cities={msg.detectedCities} />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -124,12 +173,20 @@ export function QASection({ cityData }: QASectionProps) {
       </div>
 
       {/* Floating Inquiry Console - Compact UI */}
-      <div className="px-4 md:px-8 pb-6 bg-gradient-to-t from-white via-white to-transparent pt-4">
+      <div className="px-4 md:px-8 pb-6 bg-gradient-to-t from-white via-white to-transparent pt-4 space-y-4">
+        <div className="max-w-3xl mx-auto w-full">
+           <AudienceToggle 
+            current={audience} 
+            onChange={setAudience} 
+            disabled={loading} 
+          />
+        </div>
+
         <div className="max-w-3xl mx-auto w-full space-y-3">
-          <form onSubmit={handleSubmit} className="relative group">
+          <form onSubmit={(e) => handleSubmit(e)} className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/10 to-transparent rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
             <Input
-              placeholder={`Inquire about ${cityData.city} risk profile...`}
+              placeholder={loading ? "Synthesizing response..." : `Inquire about ${cityData.city} risk profile...`}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               className="h-12 pl-5 pr-14 bg-white border-border/60 shadow-lg rounded-2xl focus:ring-1 focus:ring-primary/10 placeholder:text-muted-foreground/40 font-medium text-xs transition-all relative z-10"

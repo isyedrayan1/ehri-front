@@ -4,17 +4,25 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BarChart2 } from "lucide-react";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from "recharts";
 
+import { MetricSeverity } from "@/types/api";
+
 interface FactorBreakdownProps {
-  pollution: number;
-  heat: number;
-  humidity: number;
+  pollution?: number;
+  heat?: number;
+  humidity?: number;
+  metrics?: MetricSeverity[];
 }
 
-export function FactorBreakdown({ pollution, heat, humidity }: FactorBreakdownProps) {
+export function FactorBreakdown({ pollution, heat, humidity, metrics }: FactorBreakdownProps) {
+  // Priority: 1. metrics (API), 2. individual props (Legacy)
+  const pollutionVal = metrics ? (metrics.find(m => m.name === 'PM2.5')?.value ?? 0) : (pollution ?? 0) * 100;
+  const heatVal = metrics ? (metrics.find(m => m.name === 'Temperature')?.value ?? 0) : (heat ?? 0) * 100;
+  const humidityVal = metrics ? (metrics.find(m => m.name === 'Humidity')?.value ?? 0) : (humidity ?? 0) * 100;
+
   const data = [
-    { subject: 'Pollution', A: pollution * 100 },
-    { subject: 'Heat', A: heat * 100 },
-    { subject: 'Humidity', A: humidity * 100 },
+    { subject: 'Pollution', A: Math.min(pollutionVal, 100) },
+    { subject: 'Heat', A: Math.min(heatVal, 100) },
+    { subject: 'Humidity', A: Math.min(humidityVal, 100) },
   ];
 
   return (

@@ -5,19 +5,26 @@ import { getRiskColor, getRiskLabel } from "@/lib/risk-utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { ShieldCheck } from "lucide-react";
 
+import { RiskSummaryCard } from "@/types/api";
+
 interface RiskGaugeProps {
   score: number;
   status: string;
+  data?: RiskSummaryCard;
 }
 
-export function RiskGauge({ score, status }: RiskGaugeProps) {
+export function RiskGauge({ score, status, data: apiData }: RiskGaugeProps) {
+  // Use API data if available, fallback to legacy props
+  const displayScore = apiData ? apiData.ehri : score;
+  const displayStatus = apiData ? apiData.summary : status;
+
   const data = [
-    { value: score },
-    { value: 100 - score },
+    { value: displayScore },
+    { value: 100 - displayScore },
   ];
 
-  const color = getRiskColor(score);
-  const label = getRiskLabel(score);
+  const color = getRiskColor(displayScore);
+  const label = getRiskLabel(displayScore);
 
   return (
     <Card className="h-full border-none shadow-[0_8px_30px_rgb(0,0,0,0.02)] rounded-[2.5rem] bg-card group overflow-hidden flex flex-col">
@@ -62,7 +69,7 @@ export function RiskGauge({ score, status }: RiskGaugeProps) {
           
           <div className="absolute top-[60%] flex flex-col items-center">
             <span className="text-6xl font-headline font-bold tracking-tighter" style={{ color }}>
-              {score.toFixed(1)}
+              {displayScore.toFixed(1)}
             </span>
             <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-border/60 mt-4 bg-background/40 backdrop-blur-sm shadow-sm transition-all group-hover:scale-105">
                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
@@ -75,7 +82,7 @@ export function RiskGauge({ score, status }: RiskGaugeProps) {
 
         <div className="mt-8 pt-8 border-t border-border/40">
           <p className="text-sm text-muted-foreground font-medium leading-relaxed italic opacity-80">
-            &ldquo;{status}&rdquo;
+            &ldquo;{displayStatus}&rdquo;
           </p>
         </div>
       </CardContent>

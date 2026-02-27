@@ -5,19 +5,29 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, ArrowUpRight } from "lucide-react";
 
+import { ForecastSnapshotCard } from "@/types/api";
+import { ForecastBadge } from "./ForecastBadge";
+
 interface TrendChartProps {
   trend: number[];
+  forecast?: ForecastSnapshotCard;
 }
 
-export function TrendChart({ trend }: TrendChartProps) {
-  const data = trend.map((val, i) => ({
-    name: `Day ${i + 1}`,
+export function TrendChart({ trend, forecast }: TrendChartProps) {
+  // Use forecast values if available, otherwise fallback to trend history
+  const chartValues = forecast && forecast.available 
+    ? [...trend, ...forecast.forecast_values]
+    : trend;
+
+  const data = chartValues.map((val, i) => ({
+    name: i < trend.length ? `Day ${i + 1}` : `F-${i - trend.length + 1}`,
     score: val,
+    isForecast: i >= trend.length
   }));
 
   const lastScore = trend[trend.length - 1];
-  const prevScore = trend[trend.length - 2];
-  const percentChange = ((lastScore - prevScore) / prevScore * 100).toFixed(1);
+  const prevScore = trend[trend.length - 2] || lastScore;
+  const percentChange = ((lastScore - prevScore) / (prevScore || 1) * 100).toFixed(1);
 
   return (
     <Card className="border-none shadow-[0_4px_20px_rgba(0,0,0,0.03)] rounded-2xl bg-card h-full">
@@ -32,12 +42,19 @@ export function TrendChart({ trend }: TrendChartProps) {
                   Temporal Analysis
                 </span>
              </div>
-             <h3 className="text-lg font-headline font-bold mt-1">7-Day Risk Velocity</h3>
-          </div>
-          <div className="flex items-center gap-1 text-xs font-bold text-foreground bg-muted/50 px-2 py-1 rounded-lg">
-             <ArrowUpRight className="w-3 h-3" />
-             {percentChange}%
-          </div>
+              <h3 className="text-lg font-headline font-bold mt-1">
+                {forecast?.available ? "Risk Projection Matrix" : "7-Day Risk Velocity"}
+              </h3>
+           </div>
+           <div className="flex flex-col items-end gap-2">
+             {forecast && (
+               <ForecastBadge trend={forecast.trend} />
+             )}
+             <div className="flex items-center gap-1 text-xs font-bold text-foreground bg-muted/50 px-2 py-1 rounded-lg">
+                <ArrowUpRight className="w-3 h-3" />
+                {percentChange}%
+             </div>
+           </div>
         </div>
 
         <div className="flex-1 min-h-[160px] w-full mt-4">

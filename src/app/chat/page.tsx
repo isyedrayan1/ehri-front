@@ -4,8 +4,9 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { fetchCityRisk } from "@/services/api";
-import { CityRiskData, defaultCity } from "@/data/mock-data";
+import { fetchCityRisk, CityRiskData, defaultCity, transformToLegacy } from "@/services/api";
+import { SUPPORTED_CITIES } from "@/lib/locations";
+import { useDashboard } from "@/hooks/use-dashboard";
 import { LoadingOverlay } from "@/components/dashboard/LoadingOverlay";
 import { QASection } from "@/components/dashboard/QASection";
 import { Button } from "@/components/ui/button";
@@ -20,32 +21,26 @@ import {
   Zap,
   PanelLeftClose,
   PanelLeft,
-  ShieldCheck
+  ShieldCheck,
+  MapPin
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function ChatContent() {
   const searchParams = useSearchParams();
-  const cityQuery = searchParams.get("city") || defaultCity;
+  const rawCity = searchParams.get("city");
+  const latParam = searchParams.get("lat");
+  const lngParam = searchParams.get("lng");
   
-  const [cityData, setCityData] = useState<CityRiskData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const cityQuery = rawCity ? decodeURIComponent(rawCity) : defaultCity;
+  const latitude = latParam ? parseFloat(latParam) : undefined;
+  const longitude = lngParam ? parseFloat(lngParam) : undefined;
+  
+  const { data: apiData, loading, error, refetch } = useDashboard(cityQuery, latitude, longitude);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      try {
-        const data = await fetchCityRisk(cityQuery);
-        setCityData(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, [cityQuery]);
+  // Transform for legacy components used in sidebar
+  const cityData = apiData ? transformToLegacy(apiData) : null;
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#fcfcfd]">
@@ -78,6 +73,26 @@ function ChatContent() {
         </div>
       )}
 
+      {error && (
+        <div className="flex-1 flex items-center justify-center bg-background p-6">
+          <div className="max-w-md w-full bg-white border border-destructive/20 p-8 rounded-3xl shadow-xl text-center space-y-4">
+            <div className="w-12 h-12 bg-destructive/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Activity className="w-6 h-6 text-destructive" />
+            </div>
+            <h2 className="text-sm font-black uppercase tracking-widest text-destructive">Signal Sync Error</h2>
+            <p className="text-xs font-medium text-muted-foreground leading-relaxed">
+              {error}
+            </p>
+            <Button 
+              onClick={() => refetch()} 
+              className="mt-4 bg-foreground text-background rounded-xl font-bold uppercase tracking-widest text-[9px] h-10 px-6"
+            >
+              Re-sync Telemetry
+            </Button>
+          </div>
+        </div>
+      )}
+
       {cityData && (
         <div className="flex-1 flex overflow-hidden relative">
           {/* Research Context Sidebar */}
@@ -106,7 +121,14 @@ function ChatContent() {
                 <div className="p-3 bg-white rounded-xl border border-border/40 shadow-sm group hover:border-primary/20 transition-all">
                   <div className="flex justify-between items-start mb-1">
                     <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40">EHRI Index</span>
-                    <Sparkles className="w-3 h-3 text-primary/20" />
+                    <a 
+                      href={`https://www.openstreetmap.org/search?query=${apiData?.risk_summary.city}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary/40 hover:text-primary transition-colors"
+                    >
+                      <MapPin className="w-3 h-3" />
+                    </a>
                   </div>
                   <div className="flex items-baseline gap-2">
                     <p className="text-xl font-black font-headline tracking-tighter">{cityData.ehri}</p>

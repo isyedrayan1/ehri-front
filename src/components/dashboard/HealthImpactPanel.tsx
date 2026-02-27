@@ -15,14 +15,37 @@ import {
   Timer,
   ShieldAlert
 } from "lucide-react";
-import { CityRiskData } from "@/data/mock-data";
+import { CityRiskData } from "@/services/api";
 import { cn } from "@/lib/utils";
 
+import { HealthAdvisoryCard } from "@/types/api";
+
 interface HealthImpactPanelProps {
-  healthImpact: CityRiskData["healthImpact"];
+  healthImpact?: CityRiskData["healthImpact"];
+  advisory?: HealthAdvisoryCard;
 }
 
-export function HealthImpactPanel({ healthImpact }: HealthImpactPanelProps) {
+export function HealthImpactPanel({ healthImpact: legacyImpact, advisory }: HealthImpactPanelProps) {
+  // Priority: 1. advisory (API), 2. legacyImpact (Legacy)
+  const healthImpact = advisory ? {
+    respiratory: {
+      summary: advisory.health_impacts[0] ?? "No respiratory data available.",
+      severity: 65, // Placeholder - backend doesn't provide specific score
+      indicators: advisory.vulnerable_groups.slice(0, 3)
+    },
+    cardiovascular: {
+      summary: advisory.health_impacts[1] ?? "No cardiovascular data available.",
+      severity: 55, // Placeholder
+      indicators: advisory.health_impacts.slice(0, 3)
+    },
+    vulnerability: {
+      demographic: advisory.vulnerable_groups.join(", "),
+      riskFactor: advisory.health_impacts[2] ?? "Standard risk factors apply."
+    },
+    longTerm: advisory.health_impacts[advisory.health_impacts.length - 1] ?? "Long-term monitoring recommended."
+  } : legacyImpact;
+
+  if (!healthImpact) return null;
   const getSeverityLabel = (severity: number) => {
     if (severity > 75) return "Critical";
     if (severity > 50) return "Elevated";

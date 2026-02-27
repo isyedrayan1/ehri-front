@@ -4,16 +4,27 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
 import { Wind } from "lucide-react";
 
+import { MetricSeverity } from "@/types/api";
+import { getMetricSeverityColor, getMetricSeverityLabel } from "@/lib/risk-utils";
+
 interface AirQualityCardProps {
-  data: {
+  data?: {
     pm25: number;
     status: string;
     trend: number[];
   };
+  metric?: MetricSeverity;
 }
 
-export function AirQualityCard({ data }: AirQualityCardProps) {
-  const chartData = data.trend.map((val, i) => ({ value: val, name: `T-${6-i}h` }));
+export function AirQualityCard({ data, metric }: AirQualityCardProps) {
+  // Priority: 1. metric (API), 2. data (Legacy)
+  const pm25 = metric ? metric.value : (data?.pm25 ?? 0);
+  const status = metric ? metric.description : (data?.status ?? "Unknown");
+  const severity = metric ? metric.severity : "info";
+  const trend = data?.trend ?? [];
+
+  const chartData = trend.map((val, i) => ({ value: val, name: `T-${6-i}h` }));
+  const severityColor = getMetricSeverityColor(severity as any);
 
   return (
     <Card className="border-none shadow-[0_4px_20px_rgba(0,0,0,0.03)] rounded-2xl bg-card overflow-hidden h-full group hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
@@ -28,12 +39,12 @@ export function AirQualityCard({ data }: AirQualityCardProps) {
         </div>
 
         <div className="flex items-baseline gap-1 mb-1">
-          <span className="text-3xl font-headline font-bold">{data.pm25}</span>
+          <span className="text-3xl font-headline font-bold">{pm25}</span>
           <span className="text-xs font-semibold text-muted-foreground">µg/m³</span>
         </div>
         
         <p className="text-xs font-semibold text-muted-foreground mb-4">
-          {data.status}
+          {status}
         </p>
 
         <div className="mt-auto h-20 w-full -mx-2">

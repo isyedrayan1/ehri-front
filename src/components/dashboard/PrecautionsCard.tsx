@@ -21,7 +21,24 @@ import {
 } from "lucide-react";
 
 interface PrecautionsCardProps {
-  precautions: { icon: string; text: string }[];
+  precautions: { icon: string; text: string }[] | string[];
+}
+
+/**
+ * Map a precaution text to a Lucide icon name.
+ * Simple keyword-based mapping.
+ */
+function mapPrecautionIcon(text: string): string {
+  const lower = text.toLowerCase();
+  if (lower.includes('mask') || lower.includes('n95')) return 'Shield';
+  if (lower.includes('indoor') || lower.includes('remain')) return 'Home';
+  if (lower.includes('purif')) return 'Wind';
+  if (lower.includes('exercise') || lower.includes('exertion')) return 'Activity';
+  if (lower.includes('hydra') || lower.includes('drink') || lower.includes('water')) return 'GlassWater';
+  if (lower.includes('medical') || lower.includes('symptom')) return 'Stethoscope';
+  if (lower.includes('uv') || lower.includes('sun')) return 'Sun';
+  if (lower.includes('ventilat')) return 'Wind';
+  return 'ShieldAlert';
 }
 
 /**
@@ -61,7 +78,11 @@ export function PrecautionsCard({ precautions }: PrecautionsCardProps) {
 
         <div className="space-y-4 mt-2">
           {precautions.map((p, i) => {
-            const IconComp = iconMap[p.icon] || Info;
+            const isString = typeof p === 'string';
+            const iconName = isString ? mapPrecautionIcon(p) : p.icon;
+            const text = isString ? p : p.text;
+            const IconComp = iconMap[iconName] || Info;
+            
             return (
               <div key={i} className="flex items-center gap-4 group/item cursor-default">
                 <div className="w-10 h-10 rounded-2xl bg-secondary/50 flex items-center justify-center shrink-0 transition-all group-hover/item:bg-primary group-hover/item:scale-110 group-hover/item:rotate-3 shadow-sm">
@@ -69,7 +90,7 @@ export function PrecautionsCard({ precautions }: PrecautionsCardProps) {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-foreground/90 leading-tight group-hover/item:text-primary transition-colors">
-                    {p.text}
+                    {text}
                   </span>
                 </div>
               </div>
