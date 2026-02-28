@@ -16,9 +16,7 @@ import type { APIErrorResponse } from '@/types/api';
 // ── Configuration ────────────────────────────
 
 const API_BASE =
-  typeof window !== 'undefined'
-    ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api')
-    : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api');
+  process.env.NEXT_PUBLIC_API_URL || 'https://6701-2401-4900-cbfd-9d2d-f082-7520-c7aa-c1af.ngrok-free.app/api';
 
 const MAX_RETRIES_ON_502 = 1;
 const RETRY_DELAY_MS = 2000;
@@ -30,7 +28,10 @@ async function rawFetch(
   options?: RequestInit,
 ): Promise<Response> {
   return fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': '69420' // Skip ngrok landing page for API requests
+    },
     ...options,
   });
 }

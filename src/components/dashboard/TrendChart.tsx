@@ -17,10 +17,9 @@ export function TrendChart({ trend, forecast }: TrendChartProps) {
         const date = new Date(item.date);
         const dayName = idx === 0 ? "Today" : idx === 1 ? "Tomorrow" : date.toLocaleDateString('en-US', { weekday: 'short' });
         
-        // Semantic weather logic based on EHRI or mock temp if missing
-        // (Backend said weather info is integrated into the model)
         const score = item.ehri;
-        const temp = item.temp || (24 + Math.random() * 8); // Fallback to realistic variance
+        // Deterministic pseudo-random based on index to avoid hydration mismatch
+        const temp = item.temp || (24 + (idx * 1.5) % 8); 
         
         return {
           day: dayName,
@@ -31,7 +30,9 @@ export function TrendChart({ trend, forecast }: TrendChartProps) {
         };
       })
     : Array.from({ length: 7 }).map((_, idx) => {
-        const d = new Date();
+        // Use a deterministic "now" for SSR consistency if possible, 
+        // but since we can't easily pass it without props, we'll use a fixed start if data is missing
+        const d = new Date(2026, 1, 28); // Fallback to a fixed point if no data, but usually forecast exists
         d.setDate(d.getDate() + idx);
         return {
           day: idx === 0 ? "Today" : idx === 1 ? "Tomorrow" : d.toLocaleDateString('en-US', { weekday: 'short' }),

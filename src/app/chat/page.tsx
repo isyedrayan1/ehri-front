@@ -37,6 +37,7 @@ function ChatContent() {
   
   const { data: apiData, loading, error, refetch } = useDashboard(cityQuery, latitude, longitude);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [selectedShortcut, setSelectedShortcut] = useState("");
 
   // Transform for legacy components used in sidebar
   const cityData = apiData ? transformToLegacy(apiData) : null;
@@ -195,6 +196,7 @@ function ChatContent() {
                   ].map((query, i) => (
                     <button 
                       key={i}
+                      onClick={() => setSelectedShortcut(query)}
                       className="w-full flex items-center justify-between text-left p-2 rounded-lg bg-white border border-border/40 text-[9px] font-bold text-muted-foreground/80 hover:bg-muted/50 hover:border-border transition-all shadow-sm group"
                     >
                       <span className="truncate pr-2">"{query}"</span>
@@ -228,7 +230,13 @@ function ChatContent() {
               </div>
             )}
             <div className="flex-1 flex flex-col min-h-0">
-              <QASection cityData={cityData} lat={latitude} lng={longitude} />
+              <QASection 
+                cityData={cityData} 
+                lat={latitude} 
+                lng={longitude} 
+                externalQuestion={selectedShortcut}
+                onExternalQuestionConsumed={() => setSelectedShortcut("")}
+              />
             </div>
           </main>
         </div>

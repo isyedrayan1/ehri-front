@@ -232,6 +232,27 @@ export interface ForecastSnapshotCard {
   available: boolean;
 }
 
+export type BiologicalSystemStatus = 'Stable' | 'Elevated' | 'High Load' | 'Extreme';
+
+export interface BiomedicalSystem {
+  name: string;
+  stress_score: number; // 0-100
+  status: BiologicalSystemStatus;
+  ai_verdict: string;
+  action_hint: string;
+}
+
+export interface BiomedicalStatus {
+  summary: string;
+  systems: BiomedicalSystem[];
+}
+
+export interface PrecautionaryProtocol {
+  title: string;
+  precautions: string[];
+  vulnerable_groups: string[];
+}
+
 export interface DashboardInsightsResponse {
   city: string;
   risk_summary: RiskSummaryCard;
@@ -239,6 +260,8 @@ export interface DashboardInsightsResponse {
   metric_breakdown: MetricBreakdownCard;
   news_digest: NewsDigestCard;
   forecast_snapshot: ForecastSnapshotCard;
+  biomedical_status: BiomedicalStatus;
+  precautionary_protocol: PrecautionaryProtocol;
   dynamic_alerts: DynamicAlertResponse[];
   ai_summary: string;  // Markdown
 }

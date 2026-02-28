@@ -36,9 +36,17 @@ interface QASectionProps {
   cityData: CityRiskData;
   lat?: number;
   lng?: number;
+  externalQuestion?: string;
+  onExternalQuestionConsumed?: () => void;
 }
 
-export function QASection({ cityData, lat, lng }: QASectionProps) {
+export function QASection({ 
+  cityData, 
+  lat, 
+  lng, 
+  externalQuestion, 
+  onExternalQuestionConsumed 
+}: QASectionProps) {
   const [question, setQuestion] = useState("");
   const [audience, setAudience] = useState<Audience>("public");
   const [messages, setMessages] = useState<Message[]>([
@@ -49,6 +57,17 @@ export function QASection({ cityData, lat, lng }: QASectionProps) {
   ]);
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (externalQuestion) {
+      setQuestion(externalQuestion);
+      onExternalQuestionConsumed?.();
+      // Focus the input field after populating it
+      setTimeout(() => inputRef.current?.focus(), 0);
+    }
+  }, [externalQuestion, onExternalQuestionConsumed]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -188,6 +207,7 @@ export function QASection({ cityData, lat, lng }: QASectionProps) {
           <form onSubmit={(e) => handleSubmit(e)} className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/10 to-transparent rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
             <Input
+              ref={inputRef}
               placeholder={loading ? "Synthesizing response..." : `Inquire about ${cityData.city} risk profile...`}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}

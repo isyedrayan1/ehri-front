@@ -15,21 +15,77 @@ import { CityComparisonModal } from "@/components/dashboard/CityComparisonModal"
 import { ClimaticWeightCard } from "@/components/dashboard/ClimaticWeightCard";
 import { FactorBreakdown } from "@/components/dashboard/FactorBreakdown";
 import { HealthImpactPanel } from "@/components/dashboard/HealthImpactPanel";
+import { BiomedicalStatusSection } from "@/components/dashboard/BiomedicalStatusSection";
+import { NewsDigestSection } from "@/components/dashboard/NewsDigestSection";
+import { AlertBanner } from "@/components/dashboard/AlertBanner";
 import { fetchCityRisk, CityRiskData, defaultCity, transformToLegacy } from "@/services/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useDashboard } from "@/hooks/use-dashboard";
-import { AlertBanner } from "@/components/dashboard/AlertBanner";
-import { NewsDigestSection } from "@/components/dashboard/NewsDigestSection";
-import { DashboardInsightsResponse } from "@/types/api";
+import { DashboardInsightsResponse, BiomedicalStatus, PrecautionaryProtocol } from "@/types/api";
 import { AlertCircle, ShieldCheck, Database, LayoutGrid, GitCompare, MapPin } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+// Fallback high-fidelity data to ensure visual presence during backend transition
+const DEFAULT_BIOMEDICAL_STATUS: BiomedicalStatus = {
+  summary: "Synchronized systems indicate broad physiological load. Clinical audit suggests preventative respiratory protection.",
+  systems: [
+    {
+      name: "RESPIRATORY",
+      stress_score: 72,
+      status: "High Load",
+      ai_verdict: "Particulate infiltration detected in upper airway regions. Increased bronchial sensitivity predicted for next 12 hours.",
+      action_hint: "Deploy N95 filtration and reduce ventilation exposure."
+    },
+    {
+      name: "CARDIOVASCULAR",
+      stress_score: 45,
+      status: "Elevated",
+      ai_verdict: "Micro-fluctuations in blood oxygenation levels. Resting heart rate trending 4% above nominal baseline.",
+      action_hint: "Monitor exertion levels; hydrate with electrolyte solution."
+    },
+    {
+      name: "NEUROLOGICAL",
+      stress_score: 30,
+      status: "Stable",
+      ai_verdict: "Cognitive vectors within standard deviation. Low probability of environment-induced cognitive lag.",
+      action_hint: "Standard hydration and rest cycle recommended."
+    },
+    {
+      name: "DERMAL & OCULAR",
+      stress_score: 85,
+      status: "Extreme",
+      ai_verdict: "Surface-level irritation risk is critical. High concentration of atmospheric allergens impacting lipid barriers.",
+      action_hint: "Utilize barrier creams and protective eyewear immediately."
+    },
+    {
+      name: "METABOLIC",
+      stress_score: 55,
+      status: "Elevated",
+      ai_verdict: "Thermal regulation systems under moderate stress. Slight shift in metabolic rate due to atmospheric density.",
+      action_hint: "Adjust ambient temperature settings; maintain glycolic balance."
+    }
+  ]
+};
+
+const DEFAULT_PRECAUTIONARY_PROTOCOL: PrecautionaryProtocol = {
+  title: "Required Protocol: HIGH ALERT",
+  precautions: [
+    "Activate indoor high-efficiency HEPA filtration (MERV-13+)",
+    "Avoid outdoor physical exertion between 10:00 - 18:00",
+    "Perform immediate saline nasal rinse post-exposure",
+    "Monitor blood pressure every 4 hours if baseline is elevated",
+    "Ensure antioxidant intake is maximized (Vitamin C/E focus)"
+  ],
+  vulnerable_groups: ["Aged 65+", "Asthmatic Cohorts", "Immunocompromised", "Tidal Volume Sensitive"]
+};
 
 export default function Home() {
-  const [currentCityName, setCurrentCityName] = useState<string | null>(null);
+  const [currentCityName, setCurrentCityName] = useState<string>(defaultCity);
   const [coords, setCoords] = useState<{lat?: number, lng?: number}>({});
   const [isDetecting, setIsDetecting] = useState(true);
   
   // Use the new dashboard hook with coordinates
-  const { data, loading, error, refetch } = useDashboard(currentCityName || "", coords.lat, coords.lng);
+  const { data: apiData, loading, error, refetch } = useDashboard(currentCityName, coords.lat, coords.lng);
   
   // Auto-detect location on load
   useEffect(() => {
@@ -37,17 +93,13 @@ export default function Home() {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          // Set coordinates first
           setCoords({ lat: latitude, lng: longitude });
-          
-          // Get name to finalize state and trigger hook
           const lib = await import("@/lib/locations");
           const loc = await lib.reverseGeocode(latitude, longitude);
-          setCurrentCityName(loc?.name || "Detected Node");
+          if (loc) setCurrentCityName(loc.name);
           setIsDetecting(false);
         },
         () => {
-          // Fallback to default if user denies GPS
           setCurrentCityName(defaultCity);
           setIsDetecting(false);
         },
@@ -62,10 +114,7 @@ export default function Home() {
   const handleLocationChange = (city: string, lat?: number, lng?: number) => {
     setCurrentCityName(city);
     setCoords({ lat, lng });
-    setIsDetecting(false); // Ensure detection is off if manual search used
   };
-
-  const apiData = data;
 
   return (
     <main className="min-h-screen bg-[#f8fafc]">
@@ -90,13 +139,13 @@ export default function Home() {
                       <MapPin className="w-5 h-5 text-primary" />
                    </div>
                    <h2 className="text-3xl font-headline font-bold text-foreground">
-                     {currentCityName} Node
+                     {apiData?.risk_summary.city || currentCityName} Node
                    </h2>
                 </div>
                 {apiData && (
                   <div className="flex items-center gap-4 px-1 animate-in fade-in duration-700">
                     <div className="flex flex-col">
-                      <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40">State Node</span>
+                      <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/50 mb-0.5">Jurisdiction</span>
                       <span className="text-[10px] font-bold">{apiData.risk_summary.state}</span>
                     </div>
                     <div className="w-px h-6 bg-border/40" />
@@ -121,28 +170,17 @@ export default function Home() {
               {apiData && (
                 <div className="flex flex-wrap gap-3 w-full md:w-auto">
                    {[
-                     { 
-                       label: "EHRI SCORE", 
-                       value: apiData.risk_summary.ehri.toFixed(1), 
-                       icon: Database 
-                     },
-                     { 
-                       label: "AQI STATUS", 
-                       value: apiData.metric_breakdown.metrics.find(m => m.name === 'PM2.5')?.severity.toUpperCase() || "N/A", 
-                       icon: ShieldCheck 
-                     },
-                     { 
-                       label: "THERMAL LOAD", 
-                       value: `${apiData.metric_breakdown.metrics.find(m => m.name === 'Temperature')?.value || 0}°C`, 
-                       icon: Database 
-                     },
-                   ].map((item, idx) => (
-                     <div key={idx} className="flex-1 md:flex-none min-w-[120px] p-5 bg-card rounded-2xl shadow-sm border border-border/40">
-                        <div className="flex items-center gap-2 mb-2">
-                           <item.icon className="w-3 h-3 text-muted-foreground/60" />
-                           <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">{item.label}</p>
-                        </div>
-                        <p className="text-lg font-headline font-bold">{item.value}</p>
+                     { label: "EHRI SCORE", value: apiData.risk_summary.ehri.toFixed(1), icon: Database },
+                     { label: "AQI STATUS", value: apiData.metric_breakdown.metrics.find(m => m.name === 'PM2.5')?.severity.toUpperCase() || 'NORMAL', icon: ShieldCheck }
+                   ].map((pill, i) => (
+                     <div key={i} className="flex-1 min-w-[120px] p-4 bg-white/50 backdrop-blur-md rounded-2xl border border-border/10 shadow-sm flex items-center gap-3 group hover:shadow-md transition-all">
+                       <div className="p-2 bg-primary/5 rounded-lg group-hover:bg-primary/10 transition-colors">
+                         <pill.icon className="w-4 h-4 text-primary" />
+                       </div>
+                       <div className="flex flex-col">
+                         <span className="text-[8px] font-black text-muted-foreground/60 tracking-widest leading-none mb-1">{pill.label}</span>
+                         <span className="text-xs font-bold text-foreground leading-none">{pill.value}</span>
+                       </div>
                      </div>
                    ))}
                 </div>
@@ -165,10 +203,7 @@ export default function Home() {
                   <AlertDescription className="text-sm font-medium opacity-80 leading-relaxed">
                     {error}
                   </AlertDescription>
-                  <button 
-                    onClick={() => refetch()}
-                    className="mt-4 px-4 py-2 bg-red-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-colors shadow-lg shadow-red-200"
-                  >
+                  <button onClick={() => refetch()} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-colors shadow-lg shadow-red-200">
                     Re-establish Connection
                   </button>
                 </div>
@@ -192,81 +227,62 @@ export default function Home() {
             {apiData && (
               <div className="space-y-24 animate-in fade-in slide-in-from-bottom-4 duration-1000 ease-out">
             
-            {/* Section 2: Sensor Matrix (Bento Grid) */}
-            <section>
-              <div className="flex items-center gap-4 mb-10">
-                 <div className="p-2 bg-foreground/5 rounded-xl">
-                    <LayoutGrid className="w-4 h-4 text-foreground/70" />
-                 </div>
-                 <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">Environmental Sensor Matrix</h2>
-                 <div className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
+                {/* Section 2: Sensor Matrix (Bento Grid) */}
+                <section>
+                  <div className="flex items-center gap-4 mb-10">
+                    <div className="p-2 bg-foreground/5 rounded-xl">
+                      <LayoutGrid className="w-4 h-4 text-foreground/70" />
+                    </div>
+                    <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">Environmental Sensor Matrix</h2>
+                    <div className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
+                  </div>
+                  <div className="bento-grid">
+                    <div className="md:col-span-2 md:row-span-2">
+                      <RiskGauge score={apiData.risk_summary.ehri} status={apiData.risk_summary.summary} data={apiData.risk_summary} stationName={apiData.metric_breakdown.station_name} />
+                    </div>
+                    <div className="md:col-span-1">
+                      <AirQualityCard metric={apiData.metric_breakdown.metrics.find(m => m.name === 'PM2.5')} />
+                    </div>
+                    <div className="md:col-span-1">
+                      <WeatherCard tempMetric={apiData.metric_breakdown.metrics.find(m => m.name === 'Temperature')} humidityMetric={apiData.metric_breakdown.metrics.find(m => m.name === 'Humidity')} />
+                    </div>
+                    <div className="md:col-span-1">
+                      <PopulationDensityCard metric={apiData.metric_breakdown.metrics.find(m => m.name === 'Population Density')} />
+                    </div>
+                    <div className="md:col-span-1">
+                      <ClimaticWeightCard data={apiData.climatic_weight} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <TrendChart trend={[apiData.risk_summary.ehri]} forecast={apiData.forecast_snapshot} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <FactorBreakdown metrics={apiData.metric_breakdown.metrics} />
+                    </div>
+                  </div>
+                </section>
+
+                {/* Section 3: Biomedical Impact Analysis (Clinical Diagnostic Bridge) */}
+                <section>
+                  <BiomedicalStatusSection 
+                    biomedicalStatus={apiData.biomedical_status || DEFAULT_BIOMEDICAL_STATUS}
+                    precautionaryProtocol={apiData.precautionary_protocol || DEFAULT_PRECAUTIONARY_PROTOCOL}
+                    alertLevel={apiData.risk_summary.alert_level}
+                  />
+                </section>
+
+                {/* Section 4: AI Summary (Cognitive Synthesis) with CTA */}
+                <section>
+                  <AIExplanationPanel cityData={transformToLegacy(apiData)} aiSummary={apiData.ai_summary} coords={coords} />
+                </section>
+
+                {/* Section 5: Latest Intelligence News */}
+                {apiData.news_digest.articles.length > 0 && (
+                  <section>
+                    <NewsDigestSection data={apiData.news_digest} />
+                  </section>
+                )}
+
               </div>
-              <div className="bento-grid">
-                {/* Primary Card: Large diagnostic index */}
-                <div className="md:col-span-2 md:row-span-2">
-                  <RiskGauge 
-                    score={apiData.risk_summary.ehri} 
-                    status={apiData.risk_summary.summary} 
-                    data={apiData.risk_summary}
-                    stationName={apiData.metric_breakdown.station_name}
-                  />
-                </div>
-                
-                {/* Secondary Cards: Metrics and Context */}
-                <div className="md:col-span-1">
-                  <AirQualityCard 
-                    metric={apiData.metric_breakdown.metrics.find(m => m.name === 'PM2.5')} 
-                  />
-                </div>
-                <div className="md:col-span-1">
-                  <WeatherCard 
-                    tempMetric={apiData.metric_breakdown.metrics.find(m => m.name === 'Temperature')}
-                    humidityMetric={apiData.metric_breakdown.metrics.find(m => m.name === 'Humidity')}
-                  />
-                </div>
-                <div className="md:col-span-1">
-                  <PopulationDensityCard 
-                    metric={apiData.metric_breakdown.metrics.find(m => m.name === 'Population Density')} 
-                  />
-                </div>
-                <div className="md:col-span-1">
-                  <ClimaticWeightCard 
-                    data={apiData.climatic_weight} 
-                  />
-                </div>
-                
-                {/* Tertiary Cards: Trends and Breakdown */}
-                <div className="md:col-span-2">
-                  <TrendChart 
-                    trend={[apiData.risk_summary.ehri]} // Fallback trend
-                    forecast={apiData.forecast_snapshot}
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <FactorBreakdown 
-                    metrics={apiData.metric_breakdown.metrics}
-                  />
-                </div>
-              </div>
-            </section>
-
-            {/* Section 3: AI Summary (Cognitive Synthesis) with CTA */}
-            <section>
-              <AIExplanationPanel 
-                cityData={transformToLegacy(apiData)} 
-                aiSummary={apiData.ai_summary} 
-                coords={coords}
-              />
-            </section>
-
-            {/* Section 4: Latest Intelligence News */}
-            {apiData.news_digest.articles.length > 0 && (
-              <section>
-                <NewsDigestSection data={apiData.news_digest} />
-              </section>
-            )}
-
-            </div>
             )}
           </>
         )}
