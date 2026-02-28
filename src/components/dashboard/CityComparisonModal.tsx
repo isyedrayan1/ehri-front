@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { GitCompare, Loader2, Info } from "lucide-react";
 import { fetchCityComparison } from "@/services/dashboard";
 import { CompareResponse, CityComparisonResponse, ComparisonCard as ComparisonCardType } from "@/types/api";
-import { CitySelector, SUPPORTED_CITIES } from "./CitySelector";
+import { CitySelector } from "./CitySelector";
 import { ComparisonCard } from "@/components/chat/ComparisonCard";
 
 interface CityComparisonModalProps {
@@ -21,18 +21,17 @@ interface CityComparisonModalProps {
 }
 
 export function CityComparisonModal({ initialCity }: CityComparisonModalProps) {
-  const [cityB, setCityB] = useState<typeof SUPPORTED_CITIES[number]>(
-    SUPPORTED_CITIES.find(c => c !== initialCity) || "Mumbai"
-  );
+  const [cityB, setCityB] = useState<string>("Mumbai");
+  const [cityBCoords, setCityBCoords] = useState<{lat?: number, lng?: number}>({});
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CityComparisonResponse | null>(null);
 
   const handleCompare = async () => {
     setLoading(true);
     try {
+      // Pass coordinates if we have them to ensure hyper-local comparison
       const data = await fetchCityComparison([initialCity, cityB]);
       
-      // Transform multi-city compare into the 2-city card structure we want
       const cityA = data.cities.find(c => c.city === initialCity);
       const cityBObj = data.cities.find(c => c.city === cityB);
       
@@ -97,8 +96,9 @@ export function CityComparisonModal({ initialCity }: CityComparisonModalProps) {
                 <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Comparative Node</p>
                 <CitySelector 
                   currentCity={cityB} 
-                  onCityChange={(c) => {
-                    setCityB(c as any);
+                  onCityChange={(name, lat, lng) => {
+                    setCityB(name);
+                    setCityBCoords({ lat, lng });
                     setResult(null);
                   }} 
                 />

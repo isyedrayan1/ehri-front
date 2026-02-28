@@ -199,16 +199,18 @@ export interface RiskSummaryCard {
   summary: string;
 }
 
-export interface HealthAdvisoryCard {
-  card_type: 'health_advisory';
-  precautions: string[];
-  vulnerable_groups: string[];
-  health_impacts: string[];
+export interface ClimaticWeightCard {
+  card_type: 'climatic_weight';
+  status: string; // "Light & Dry", "Comfortable", "Sticky", "Heavy Air"
+  description: string;
+  humidity_index: number;
+  apparent_temp: number;
 }
 
 export interface MetricBreakdownCard {
   card_type: 'metric_breakdown';
   metrics: MetricSeverity[];
+  station_name?: string; // NEW: The specific sensor station or 'Regional Estimate'
 }
 
 export interface NewsDigestCard {
@@ -219,7 +221,13 @@ export interface NewsDigestCard {
 export interface ForecastSnapshotCard {
   card_type: 'forecast_snapshot';
   trend: ForecastTrend | 'Unknown';
-  forecast_values: number[];
+  forecast_values: number[]; // Deprecated
+  daily_forecasts?: { 
+    date: string; 
+    ehri: number;
+    temp?: number;
+    condition?: string;
+  }[];
   history_count: number;
   available: boolean;
 }
@@ -227,7 +235,7 @@ export interface ForecastSnapshotCard {
 export interface DashboardInsightsResponse {
   city: string;
   risk_summary: RiskSummaryCard;
-  health_advisory: HealthAdvisoryCard;
+  climatic_weight: ClimaticWeightCard;
   metric_breakdown: MetricBreakdownCard;
   news_digest: NewsDigestCard;
   forecast_snapshot: ForecastSnapshotCard;

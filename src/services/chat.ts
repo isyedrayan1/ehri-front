@@ -26,6 +26,8 @@ export async function sendChatMessage(
   message: string,
   audience: Audience = 'public',
   history: ChatMessage[] = [],
+  latitude?: number,
+  longitude?: number,
 ): Promise<ConversationResponse> {
   // Trim history to last 20 entries per backend contract
   const trimmedHistory = history.slice(-20);
@@ -34,6 +36,8 @@ export async function sendChatMessage(
     message,
     audience,
     history: trimmedHistory,
+    latitude,
+    longitude,
   });
 }
 

@@ -41,11 +41,13 @@ export function useDashboard(
     setError(null);
     setErrorCode(null);
     setIsRateLimited(false);
+    setData(null); // Clear old data immediately to prevent "Zombie Data"
 
     try {
       const result = await fetchDashboardInsights(city, latitude, longitude);
       setData(result);
     } catch (err) {
+      setData(null); // Ensure data is cleared on error
       if (err instanceof ApiError) {
         setError(err.detail);
         setErrorCode(err.code);

@@ -129,28 +129,23 @@ export function transformToLegacy(data: DashboardInsightsResponse): CityRiskData
       })),
     explanation: data.ai_summary,
     trend: [data.risk_summary.ehri],
-    precautions: data.health_advisory.precautions.map(text => ({
-      icon: mapPrecautionIcon(text),
-      text,
-    })),
+    precautions: [], // Legacy field deprecated
     healthImpact: {
       respiratory: {
-        summary: data.health_advisory.health_impacts[0] ?? 'No data available.',
-        severity: data.risk_summary.alert_level === 'severe' ? 85 : data.risk_summary.alert_level === 'high' ? 65 : 40,
-        indicators: data.health_advisory.health_impacts.slice(0, 3),
+        summary: 'Atmospheric context available in diagnostic matrix.',
+        severity: 0,
+        indicators: [],
       },
       cardiovascular: {
-        summary: data.health_advisory.health_impacts[2] ?? 'No data available.',
-        severity: data.risk_summary.alert_level === 'severe' ? 72 : data.risk_summary.alert_level === 'high' ? 55 : 30,
-        indicators: data.health_advisory.health_impacts.slice(2, 5),
+        summary: 'Atmospheric context available in diagnostic matrix.',
+        severity: 0,
+        indicators: [],
       },
       vulnerability: {
-        demographic: data.health_advisory.vulnerable_groups.slice(0, 3).join(', '),
-        riskFactor: data.health_advisory.vulnerable_groups.length > 3
-          ? `Includes ${data.health_advisory.vulnerable_groups.slice(3).join(', ')}`
-          : 'Standard population risk factors.',
+        demographic: 'N/A',
+        riskFactor: 'N/A'
       },
-      longTerm: data.health_advisory.health_impacts[data.health_advisory.health_impacts.length - 1] ?? '',
+      longTerm: 'Atmospheric context available in diagnostic matrix.',
     },
   };
 }

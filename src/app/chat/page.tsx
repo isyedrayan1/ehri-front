@@ -5,7 +5,6 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { fetchCityRisk, CityRiskData, defaultCity, transformToLegacy } from "@/services/api";
-import { SUPPORTED_CITIES } from "@/lib/locations";
 import { useDashboard } from "@/hooks/use-dashboard";
 import { LoadingOverlay } from "@/components/dashboard/LoadingOverlay";
 import { QASection } from "@/components/dashboard/QASection";
@@ -137,6 +136,17 @@ function ChatContent() {
                   <div className="mt-2 h-1 w-full bg-muted/40 rounded-full overflow-hidden">
                     <div className="h-full bg-primary" style={{ width: `${cityData.ehri}%` }} />
                   </div>
+                  {apiData?.metric_breakdown.station_name && (
+                    <div className="mt-3 pt-2 border-t border-border/20 flex items-center gap-1.5">
+                      <div className={cn(
+                        "w-1 h-1 rounded-full",
+                        apiData.metric_breakdown.station_name === "Regional Estimate" ? "bg-orange-400" : "bg-green-500"
+                      )} />
+                      <span className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/40 truncate">
+                        Source: {apiData.metric_breakdown.station_name}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -218,7 +228,7 @@ function ChatContent() {
               </div>
             )}
             <div className="flex-1 flex flex-col min-h-0">
-              <QASection cityData={cityData} />
+              <QASection cityData={cityData} lat={latitude} lng={longitude} />
             </div>
           </main>
         </div>

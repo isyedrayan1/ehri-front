@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { getRiskColor, getRiskLabel } from "@/lib/risk-utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { ShieldCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { RiskSummaryCard } from "@/types/api";
 
@@ -11,9 +12,10 @@ interface RiskGaugeProps {
   score: number;
   status: string;
   data?: RiskSummaryCard;
+  stationName?: string;
 }
 
-export function RiskGauge({ score, status, data: apiData }: RiskGaugeProps) {
+export function RiskGauge({ score, status, data: apiData, stationName }: RiskGaugeProps) {
   // Use API data if available, fallback to legacy props
   const displayScore = apiData ? apiData.ehri : score;
   const displayStatus = apiData ? apiData.summary : status;
@@ -30,15 +32,26 @@ export function RiskGauge({ score, status, data: apiData }: RiskGaugeProps) {
     <Card className="h-full border-none shadow-[0_8px_30px_rgb(0,0,0,0.02)] rounded-[2.5rem] bg-card group overflow-hidden flex flex-col">
       <CardContent className="p-10 flex flex-col flex-1">
         <div className="flex items-start justify-between mb-8">
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 overflow-hidden">
             <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground/60">
               Diagnostic Index
             </span>
-            <h2 className="text-2xl font-headline font-bold text-foreground">
+            <h2 className="text-2xl font-headline font-bold text-foreground truncate">
               Aggregate EHRI
             </h2>
+            {stationName && (
+              <div className="flex items-center gap-1.5 mt-1">
+                <div className={cn(
+                  "w-1.5 h-1.5 rounded-full shrink-0",
+                  stationName === "Regional Estimate" ? "bg-orange-400" : "bg-green-500"
+                )} />
+                <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 whitespace-nowrap overflow-hidden text-ellipsis">
+                  Source: {stationName}
+                </span>
+              </div>
+            )}
           </div>
-          <div className="p-2.5 bg-muted/50 rounded-xl">
+          <div className="p-2.5 bg-muted/50 rounded-xl shrink-0">
             <ShieldCheck className="w-5 h-5 text-muted-foreground/40" />
           </div>
         </div>

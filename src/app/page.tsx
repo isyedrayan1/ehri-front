@@ -9,12 +9,12 @@ import { WeatherCard } from "@/components/dashboard/WeatherCard";
 import { PopulationDensityCard } from "@/components/dashboard/PopulationDensityCard";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import { AIExplanationPanel } from "@/components/dashboard/AIExplanationPanel";
-import { PrecautionsCard } from "@/components/dashboard/PrecautionsCard";
-import { FactorBreakdown } from "@/components/dashboard/FactorBreakdown";
-import { HealthImpactPanel } from "@/components/dashboard/HealthImpactPanel";
 import { LoadingOverlay } from "@/components/dashboard/LoadingOverlay";
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { CityComparisonModal } from "@/components/dashboard/CityComparisonModal";
+import { ClimaticWeightCard } from "@/components/dashboard/ClimaticWeightCard";
+import { FactorBreakdown } from "@/components/dashboard/FactorBreakdown";
+import { HealthImpactPanel } from "@/components/dashboard/HealthImpactPanel";
 import { fetchCityRisk, CityRiskData, defaultCity, transformToLegacy } from "@/services/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useDashboard } from "@/hooks/use-dashboard";
@@ -24,11 +24,12 @@ import { DashboardInsightsResponse } from "@/types/api";
 import { AlertCircle, ShieldCheck, Database, LayoutGrid, GitCompare, MapPin } from "lucide-react";
 
 export default function Home() {
-  const [currentCityName, setCurrentCityName] = useState(defaultCity);
+  const [currentCityName, setCurrentCityName] = useState<string | null>(null);
   const [coords, setCoords] = useState<{lat?: number, lng?: number}>({});
+  const [isDetecting, setIsDetecting] = useState(true);
   
   // Use the new dashboard hook with coordinates
-  const { data, loading, error, refetch } = useDashboard(currentCityName, coords.lat, coords.lng);
+  const { data, loading, error, refetch } = useDashboard(currentCityName || "", coords.lat, coords.lng);
   
   // Auto-detect location on load
   useEffect(() => {
@@ -36,27 +37,32 @@ export default function Home() {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          // Just set coordinates, hook will refetch
+          // Set coordinates first
           setCoords({ lat: latitude, lng: longitude });
           
-          // Optionally get name too for UI consistency
-          import("@/lib/locations").then(lib => {
-            lib.reverseGeocode(latitude, longitude).then(loc => {
-              if (loc) setCurrentCityName(loc.name);
-            });
-          });
+          // Get name to finalize state and trigger hook
+          const lib = await import("@/lib/locations");
+          const loc = await lib.reverseGeocode(latitude, longitude);
+          setCurrentCityName(loc?.name || "Detected Node");
+          setIsDetecting(false);
         },
         () => {
-          // Fallback handled by default state
-          console.log("Geolocation declined or failed, using default.");
-        }
+          // Fallback to default if user denies GPS
+          setCurrentCityName(defaultCity);
+          setIsDetecting(false);
+        },
+        { timeout: 10000 }
       );
+    } else {
+      setCurrentCityName(defaultCity);
+      setIsDetecting(false);
     }
   }, []);
 
   const handleLocationChange = (city: string, lat?: number, lng?: number) => {
     setCurrentCityName(city);
     setCoords({ lat, lng });
+    setIsDetecting(false); // Ensure detection is off if manual search used
   };
 
   const apiData = data;
@@ -171,10 +177,20 @@ export default function Home() {
           </div>
         )}
 
-        {loading && <LoadingOverlay />}
-
-        {apiData && (
-          <div className="space-y-24 animate-in fade-in slide-in-from-bottom-4 duration-1000 ease-out">
+        {isDetecting ? (
+          <div className="min-h-[60vh] flex flex-col items-center justify-center animate-in fade-in duration-1000">
+             <div className="w-16 h-16 bg-primary/5 rounded-[2rem] flex items-center justify-center mb-6 relative">
+                <div className="absolute inset-x-0 inset-y-0 bg-primary/20 rounded-[2rem] animate-ping" />
+                <MapPin className="w-6 h-6 text-primary relative z-10" />
+             </div>
+             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Synchronizing Live Node</p>
+             <p className="text-[9px] text-muted-foreground mt-3 font-bold uppercase tracking-widest animate-pulse">Scanning Global Sensor Matrix...</p>
+          </div>
+        ) : (
+          <>
+            {loading && <LoadingOverlay />}
+            {apiData && (
+              <div className="space-y-24 animate-in fade-in slide-in-from-bottom-4 duration-1000 ease-out">
             
             {/* Section 2: Sensor Matrix (Bento Grid) */}
             <section>
@@ -192,6 +208,7 @@ export default function Home() {
                     score={apiData.risk_summary.ehri} 
                     status={apiData.risk_summary.summary} 
                     data={apiData.risk_summary}
+                    stationName={apiData.metric_breakdown.station_name}
                   />
                 </div>
                 
@@ -213,8 +230,8 @@ export default function Home() {
                   />
                 </div>
                 <div className="md:col-span-1">
-                  <PrecautionsCard 
-                    precautions={apiData.health_advisory.precautions} 
+                  <ClimaticWeightCard 
+                    data={apiData.climatic_weight} 
                   />
                 </div>
                 
@@ -249,15 +266,9 @@ export default function Home() {
               </section>
             )}
 
-            {/* Section 5: Health Impact Analysis */}
-            <section>
-              <div className="flex items-center gap-4 mb-10">
-                 <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">Biomedical Impact Analysis</h2>
-                 <div className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
-              </div>
-              <HealthImpactPanel advisory={apiData.health_advisory} />
-            </section>
-          </div>
+            </div>
+            )}
+          </>
         )}
 
         <footer className="mt-32 pt-16 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-12 text-[10px] uppercase tracking-[0.25em] text-muted-foreground/60 font-bold">

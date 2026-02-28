@@ -34,9 +34,11 @@ interface Message {
 
 interface QASectionProps {
   cityData: CityRiskData;
+  lat?: number;
+  lng?: number;
 }
 
-export function QASection({ cityData }: QASectionProps) {
+export function QASection({ cityData, lat, lng }: QASectionProps) {
   const [question, setQuestion] = useState("");
   const [audience, setAudience] = useState<Audience>("public");
   const [messages, setMessages] = useState<Message[]>([
@@ -70,7 +72,7 @@ export function QASection({ cityData }: QASectionProps) {
         content: m.content
       }));
 
-      const response = await sendChatMessage(userMsg, audience, history);
+      const response = await sendChatMessage(userMsg, audience, history, lat, lng);
       
       setMessages(prev => [...prev, { 
         role: "ai", 
