@@ -22,11 +22,10 @@ If you prefer using the terminal:
 - **Intelligence Node**: Interactive AI chatbot for deep inquiry into environmental health profiles.
 - **Biomedical Impact**: Clinical-grade analysis of respiratory and cardiovascular risks.
 
-
-<img width="1280" height="714" alt="WhatsApp Image 2026-05-24 at 10 29 44 PM" src="https://github.com/user-attachments/assets/0655f34a-a0d6-4742-bf25-c47317af2dfe" />
-
 <img width="1122" height="1600" alt="WhatsApp Image 2026-05-24 at 10 29 45 PM (2)" src="https://github.com/user-attachments/assets/1962f90c-6290-4a91-b624-c092ecc82f09" />
 
 <img width="714" height="1280" alt="WhatsApp Image 2026-05-24 at 10 29 45 PM (1)" src="https://github.com/user-attachments/assets/d2dd9014-2de1-48ee-99f9-9b014a018275" />
 
 <img width="1122" height="1600" alt="WhatsApp Image 2026-05-24 at 10 29 45 PM" src="https://github.com/user-attachments/assets/a5726c4e-9b3b-46f4-b6c3-563e0ba59ac8" />
+
+<img width="1280" height="714" alt="WhatsApp Image 2026-05-24 at 10 29 44 PM" src="https://github.com/user-attachments/assets/0655f34a-a0d6-4742-bf25-c47317af2dfe" />
