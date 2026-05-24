@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Player } from '@remotion/player';
 import { EHRIComposition } from './EHRIComposition';
 import gsap from 'gsap';
 import Link from 'next/link';
@@ -59,20 +58,7 @@ export const HeroSection = () => {
         >
           <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 to-blue-500/20 blur-3xl -z-10 rounded-full" />
           <div className="rounded-3xl overflow-hidden border border-border shadow-2xl bg-card">
-            <Player
-              component={EHRIComposition}
-              durationInFrames={120}
-              compositionWidth={600}
-              compositionHeight={600}
-              fps={30}
-              style={{
-                width: '100%',
-                height: 'auto',
-                aspectRatio: '1/1'
-              }}
-              autoPlay
-              loop
-            />
+            <EHRIComposition />
           </div>
         </motion.div>
       </div>
