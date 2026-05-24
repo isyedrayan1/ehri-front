@@ -1,0 +1,19 @@
+app = "ehir-back"
+primary_region = "iad"
+
+[build]
+  builder = "paketobuildpacks"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 8000
+  processes = ["app"]
+
+  [[services.ports]]
+    port = 80
+
+  [[services.ports]]
+    port = 443
+
+[env]
+  PYTHONUNBUFFERED = "true"

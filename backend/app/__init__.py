@@ -1,0 +1,1 @@
+"""EHRI backend application package."""
